@@ -1,3 +1,4 @@
+import time
 from typing import Optional
 import sympy as sp
 from sympy.polys.rings import PolyElement
@@ -46,6 +47,7 @@ def is_quadratization(
         if pol not in V2_poly:
             result = is_linear_combination(V2_red, pol)
             if not result[0]:
+                # print('result[1]', result[1])
                 NS.append((name, result[1]))
             else:
                 quad.append(sp.Eq(name, result[1]))
@@ -112,4 +114,5 @@ def is_linear_combination(
         der_tuple = reduction_sparse(der_tuple, V2[i])
         if der_tuple[1] == 0:
             return (True, -der_tuple[0])
+    # print('der_tuple[0]', der_tuple[0])
     return (False, der_tuple[1])

@@ -5,6 +5,7 @@ import statistics
 import sys
 sys.path.append("..")
 from qupde.quadratize import quadratize
+from qupde.mon_heuristics import *
 
 """
 The non-adiabatic tubular reactor model describes species concentration and temperature evolution in a single reaction:
@@ -43,11 +44,11 @@ theta_t = (
 # we run QuPDE for the tubular reactor model
 if __name__ == "__main__":
     times = []
-    for i in range(5):
+    for i in range(10):
         ti = time.time()
         quadratize(
             [(psi, psi_t), (theta, theta_t)],
-            n_diff=2,
+            diff_ord=2,
             nvars_bound=7,
             max_der_order=3,
             search_alg="bnb",
@@ -55,18 +56,17 @@ if __name__ == "__main__":
         times.append(time.time() - ti)
     avg = statistics.mean(times)
     std = statistics.stdev(times)
-    
+
     print("Average time", avg)
     print("Standard deviation", std)
-    # ti = time.time()
+
     print(quadratize(
             [(psi, psi_t), (theta, theta_t)],
-            n_diff=2,
-            nvars_bound=7,
+            diff_ord=2,
+            nvars_bound=8,
             max_der_order=3,
             search_alg="bnb",
             printing="latex",
         ))
-    
-    # print("Time taken:", time.time() - ti)
+
 

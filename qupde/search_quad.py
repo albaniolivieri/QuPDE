@@ -68,7 +68,7 @@ def pruning_rule_order(new_vars: list[PolyElement], max_order: int) -> bool:
         than the maximum order allowed, False otherwise
     """
     for var in new_vars:
-        if get_diff_order(var) > max_order / 2:
+        if get_diff_order(var) > max_order/2:
             return True
     return False
 
@@ -140,6 +140,7 @@ def bnb(
     if result_quad[0]:
         shrinked_quad = shrink_quad(new_vars, poly_syst)
         return shrinked_quad, len(shrinked_quad), 1
+        # return new_vars, len(new_vars), 1
     else:
         if len(new_vars) >= best_nvars - 1:
             return None, math.inf, 1

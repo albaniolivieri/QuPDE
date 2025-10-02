@@ -1,9 +1,10 @@
 from typing import Optional, Callable
+import math
 import sympy as sp
 from sympy.polys.rings import PolyElement
 from sympy import Derivative as D
 from .quadratization import is_quadratization
-from .utils import diff_dict, get_order, remove_vars, get_decompositions, sort_vars
+from .utils import diff_dict, get_order, remove_vars, get_decompositions, sort_vars, get_diff_order
 from .fraction_decomp import FractionDecomp
 from .mon_heuristics import *
 
@@ -336,6 +337,7 @@ class RatSys:
             )
 
         for name, expr in named_new_vars:
+            # var_ord = get_diff_order() 
             for i in range(1, self.order + 1):
                 deriv_x.append(
                     (
@@ -373,7 +375,7 @@ class RatSys:
         new_vars_t, new_vars_x = self.differentiate_dict(new_vars_named)
         deriv_t = new_vars_t + self.frac_der_t + self.pde_eq
         poly_vars = list(filter(lambda x: str(x)[0] != "q", self.poly_vars))
-
+        
         V = (
             [(1, self.poly_vars[0].ring(1))]
             + [(sp.symbols(f"{sym}"), sym) for sym in poly_vars]
@@ -404,28 +406,34 @@ class RatSys:
             the proposed new variables
         """
         list_vars = []
-        NS_list = sorted(self.NS_list, key=lambda x: str(x[0]))
-        for ns_pol in NS_list:
-            for monom in ns_pol[1].itermonoms():
-                list_vars += get_decompositions(monom)
-                break
-            break
-
+        # print('NS_list', self.NS_list)
+        min_monom = (0,)*len(self.NS_list[0][1].leading_expv())
+        
+        for ns_pol in self.NS_list:
+            monoms = [m for m in ns_pol[1].itermonoms() if sum(m) > 2]
+        if monoms:
+            min_monom = min(monoms, key=lambda m: sum(m))
+            
+        list_vars += get_decompositions(min_monom)
+        
         list_vars = list(
             map(
                 lambda x: (
-                    NS_list[0][1].ring({x[0]: 1}),
-                    NS_list[0][1].ring({x[1]: 1}),
+                    self.NS_list[0][1].ring({x[0]: 1}),
+                    self.NS_list[0][1].ring({x[1]: 1}),
                 ),
                 list_vars,
             )
         )
 
         list_vars = remove_vars(list_vars, self.new_vars["new_vars"])
+        
+        new_vars = list_vars[:]
 
         for i in range(len(list_vars)):
             if not list_vars[i]:
-                list_vars.remove(list_vars[i])
+                new_vars.remove(list_vars[i])
 
-        sorted_vars = sort_vars(list_vars, sort_fun)
+        sorted_vars = sort_vars(new_vars, sort_fun)
+
         return sorted_vars

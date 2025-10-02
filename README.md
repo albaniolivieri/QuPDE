@@ -40,9 +40,9 @@ pip install -r requirements.txt
 For interactive usage examples, go to [Colab notebook](https://colab.research.google.com/drive/1qbMoZTL0SMJ5tdp8dHXULBjnxvWJjmo_?usp=sharing).
 
 
-To find a quadratization for a PDE, we need to provide the algorithm with two parameters, the PDE and the number of differentiations with respect to the spatial variable to be performed on the auxiliary variables.
+<!-- To find a quadratization for a PDE, we need to provide the algorithm with two parameters, the PDE and the number of differentiations with respect to the spatial variable to be performed on the auxiliary variables. -->
 
-If we want to find a quadratization for the PDE $$u_t = u_x^3u_{xxx}$$ (Dym equation), we first write the differential equation:
+To find a quadratization for the PDE $$u_t = u_x^3u_{xxx}$$ (Dym equation), we first write the differential equation:
 
 ```python 
 from sympy import symbols, Function, Derivative
@@ -52,17 +52,17 @@ u = Function('u')(t,x)
 
 u_t = u**3 * Derivative(u, x, 3)
 ```
-
+<!-- 
 We choose how many times we want to differentiate the new variables to be introduced, in this case let us say three. 
 
 ```python 
 n = 3
-```
+``` -->
 
-Now we call the main function of the software *quadratize*. This function receives a list of tuples representing each undefined function with its corresponding differential equation within the PDE system; and an integer *n* representing the number of differentiations the algorithm will compute for the new variables. In our example: 
+Now we call the main function of the software *quadratize*. This function receives a list of tuples representing each undefined function with its corresponding differential equation within the PDE system. In our example: 
 
 ```python 
-quadratize([(u, u_t)], n)
+quadratize([(u, u_t)])
 ```
 
 This function returns the optimal set of new variables (polynomial and rational) introduced to obtain a quadratic representation of the PDE, and the number of nodes visited. In this case, it returns 
@@ -71,13 +71,20 @@ This function returns the optimal set of new variables (polynomial and rational)
 ([u**3, u*u_x1**2], [], 21)
 ```
 
+Besides the PDE input, users can decide to include in the quadratic transformation the spatial derivatives of the auxiliary variables up to order k through the parameter *n_diff*. By default this value is set to 3. 
+If we set this value in the previous example to 2, we obtain: 
+```console 
+Quadratization not found
+```
+indicating an unsuccesful search. This shows that the number of derivatives taken directly affects the algorithm's ability to find a quadratization. Therefore, incresing this parameter may help when encountered with an unsuccesful search.
+
 In addition, we can print the new variables with their corresponding transformations by calling the same function but with the optional *printing* parameter set with the available printing options: 
 - `'pprint'` for pretty printing (Sympy's functionality) 
 - `'latex'` for printing the result in latex code. 
 The command
 
 ```python 
-quadratize([(u, u_t)], n, printing='pprint')
+quadratize([(u, u_t)], printing='pprint')
 ```
 
 outputs
@@ -112,8 +119,7 @@ u = sp.Function('u')(t,x)
 u_t = D(u, x, 2) + u - u**3 
 
 # run QuPDE for the Allen-Cahn equation
-    
-quadratize([(u, u_t)], 3, search_alg='bnb', printing='pprint')
+quadratize([(u, u_t)], search_alg='bnb', printing='pprint')
 ```
 This example outputs
 ```console 

@@ -5,6 +5,7 @@ import statistics
 import sys
 sys.path.append("..")
 from qupde.quadratize import quadratize
+from qupde.mon_heuristics import *
 
 """
 The 1D nonlinear heat equation is one the most widely studied models, and it presents a rich mathematical 
@@ -26,12 +27,12 @@ if __name__ == '__main__':
     times = []
     for i in range(10):
         ti = time.time()
-        quadratize([(u, u_t)], 3, search_alg='bnb', max_der_order=10)
+        quadratize([(u, u_t)], 3, search_alg='bnb', max_der_order=5)
         times.append(time.time() - ti) 
-    avg=statistics.mean(times)
-    std=statistics.stdev(times)
-    
-    quadratize([(u, u_t)], 3, search_alg='bnb', max_der_order=10, printing='pprint')
+    avg=statistics.mean(times[1:])
+    std=statistics.stdev(times[1:])
+
+    print(quadratize([(u, u_t)], 3, search_alg='bnb', max_der_order=5, printing='pprint'))
 
     print('Average time', avg)
     print('Standard deviation', std)

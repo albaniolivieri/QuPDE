@@ -69,7 +69,7 @@ class TestQuadratization(unittest.TestCase):
         # u_t = u_xx * u**2 + 2
         # v_t = v_xx/u**3 + u
         self.test_cases_rat.append(TestCase([(self.u, self.u**2 * D(self.u, self.x, 2) + 2), 
-                                             (self.v, D(self.v, self.x, 2)/self.u**3 + self.u)], 3))
+                                             (self.v, D(self.v, self.x, 2)/self.u**3 + self.u)], 3, 10))
         
         # u_t = 1/(5 * (u + 1))
         self.test_cases_rat.append(TestCase([(self.u, 1 / (5 * (self.u + 1)))], 1))
@@ -171,7 +171,7 @@ class TestQuadratization(unittest.TestCase):
         exprs_orig = [expr for _, expr in deriv_t]
         return refac, exprs_orig
         
-    def quadratization_test(self, search_alg, test_cases, sort_heur=by_fun):
+    def quadratization_test(self, search_alg, test_cases, sort_heur='by_fun'):
         """
         Main method to test the quadratization algorithm.
         """

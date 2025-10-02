@@ -5,6 +5,7 @@ import statistics
 import sys
 sys.path.append("..")
 from qupde.quadratize import quadratize
+from qupde.mon_heuristics import *
 
 """
 The Schnakenberg equations are evolution equations for reaction-diffusion systems with cross-diffusion:
@@ -29,12 +30,12 @@ if __name__ == '__main__':
     times= []
     for i in range(10):
         ti = time.time()
-        quadratize([(u, u_t), (v, v_t)], 3, search_alg='nn')
+        quadratize([(u, u_t), (v, v_t)], 3, search_alg='bnb')
         times.append(time.time() - ti) 
-    avg = statistics.mean(times)
-    std = statistics.stdev(times)
-    
-    quadratize([(u, u_t), (v, v_t)], 3, search_alg='nn', printing='pprint')
+    avg = statistics.mean(times[1:])
+    std = statistics.stdev(times[1:])
+
+    print(quadratize([(u, u_t), (v, v_t)], 3, search_alg='bnb', printing='pprint'))
 
     print('Average time', avg)
     print('Standard deviation', std)

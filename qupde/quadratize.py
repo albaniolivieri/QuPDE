@@ -3,12 +3,12 @@ import sympy as sp
 from sympy.polys.rings import PolyElement
 from .rat_sys import RatSys
 from .search_quad import bnb, nearest_neighbor
-from .mon_heuristics import by_fun
+from .mon_heuristics import by_fun, by_degree_order, by_order_degree
 
 def quadratize(
     func_eq: list[tuple[sp.Function, sp.Expr]],
-    n_diff: int,
-    sort_fun: Callable = by_fun,
+    diff_ord: Optional[int] = 3,
+    sort_fun: Optional[str] = 'by_fun',
     nvars_bound: Optional[int] = 10,
     first_indep: Optional[sp.Symbol] = sp.symbols("t"),
     max_der_order: Optional[int] = None,
@@ -21,7 +21,7 @@ def quadratize(
     ----------
     func_eq
         Tuples with the symbol and equations of the PDE
-    n_diff 
+    n_diff : optional
         The number of second variable differentiations to do
     sort_fun : optional
         The function to sort the proposed new variables
@@ -47,12 +47,21 @@ def quadratize(
     x_var = [
         symbol for symbol in undef_fun[0].free_symbols if symbol != first_indep
     ].pop()
-
-    poly_syst = RatSys(func_eq, n_diff, (first_indep, x_var))
+    
+    poly_syst = RatSys(func_eq, diff_ord, (first_indep, x_var))
     vars_frac_intro = poly_syst.get_frac_vars()
     quad = []
     nodes = 0
     
+    if sort_fun == 'by_fun':
+        sort_fun = by_fun 
+    elif sort_fun == 'by_degree_order':
+        sort_fun = by_degree_order
+    elif sort_fun == 'by_order_degree':
+        sort_fun = by_order_degree
+    else: 
+        raise ValueError(f"Unknown sorting function: {sort_fun}")
+
     if search_alg == 'inn':
         quad, nodes = nearest_neighbor(poly_syst, sort_fun, new_vars=[])
     elif search_alg == 'bnb':
@@ -62,14 +71,15 @@ def quadratize(
         return vars_frac_intro, nodes
     
     if printing:
-        print_quad(func_eq, quad, vars_frac_intro, n_diff, first_indep, p_style=printing)
+        print('quad', type(quad[0]))
+        print_quad(func_eq, quad, vars_frac_intro, diff_ord, first_indep, p_style=printing)
         
     return quad, vars_frac_intro, nodes
 
 
 def check_quadratization(
     func_eq: list[tuple[sp.Function, sp.Expr]],
-    new_vars: list[sp.Expr],
+    new_vars: list[PolyElement],
     n_diff: int,
     first_indep: Optional[sp.Symbol] = sp.symbols("t"),
 ) -> bool: 
