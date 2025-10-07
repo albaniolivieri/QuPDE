@@ -36,7 +36,6 @@ if __name__ == '__main__':
 
     print(quadratize([(v, v_t), (y, y_t)], 3, search_alg='bnb', printing='pprint'))
 
-    
     print('Average time', avg)
     print('Standard deviation', std)
 

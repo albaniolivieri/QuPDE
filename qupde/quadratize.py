@@ -21,8 +21,8 @@ def quadratize(
     ----------
     func_eq
         Tuples with the symbol and equations of the PDE
-    n_diff : optional
-        The number of second variable differentiations to do
+    diff_ord : optional
+        The differentiation order of the quadratization 
     sort_fun : optional
         The function to sort the proposed new variables
     nvars_bound : optional
@@ -71,7 +71,6 @@ def quadratize(
         return vars_frac_intro, nodes
     
     if printing:
-        print('quad', type(quad[0]))
         print_quad(func_eq, quad, vars_frac_intro, diff_ord, first_indep, p_style=printing)
         
     return quad, vars_frac_intro, nodes

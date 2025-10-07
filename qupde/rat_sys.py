@@ -26,7 +26,7 @@ class RatSys:
     consts : list[sp.Symbol]
         a list of all the constants in the system
     order : int
-        an integer representing the order of second variable derivatives
+        an integer representing the differentiation order of the quadratization 
     frac_decomps : FractionDecomp
         a FractionDecomp object that stores the fraction decomposition of the system
     poly_vars : PolyElement
@@ -80,7 +80,7 @@ class RatSys:
         pde_sys
             Tuples with the symbol and expression of PDE
         n_diff
-            The number of second variable differentiations to do
+            The differentiation order of the quadratization 
         var_indep
             The symbol of the second independent variable
         new_vars : optional
@@ -337,8 +337,8 @@ class RatSys:
             )
 
         for name, expr in named_new_vars:
-            # var_ord = get_diff_order() 
-            for i in range(1, self.order + 1):
+            var_ord = self.order - get_diff_order(expr)
+            for i in range(1, var_ord + 1):
                 deriv_x.append(
                     (
                         sp.symbols(f"{name}{self.sec_indep}{i}"),
@@ -406,7 +406,7 @@ class RatSys:
             the proposed new variables
         """
         list_vars = []
-        # print('NS_list', self.NS_list)
+
         min_monom = (0,)*len(self.NS_list[0][1].leading_expv())
         
         for ns_pol in self.NS_list:

@@ -50,7 +50,7 @@ if __name__ == "__main__":
             [(psi, psi_t), (theta, theta_t)],
             diff_ord=2,
             nvars_bound=7,
-            max_der_order=3,
+            max_der_order=1,
             search_alg="bnb",
         )
         times.append(time.time() - ti)
@@ -64,7 +64,7 @@ if __name__ == "__main__":
             [(psi, psi_t), (theta, theta_t)],
             diff_ord=2,
             nvars_bound=8,
-            max_der_order=3,
+            max_der_order=1,
             search_alg="bnb",
             printing="latex",
         ))

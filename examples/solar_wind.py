@@ -34,7 +34,7 @@ if __name__ == '__main__':
     avg = statistics.mean(times[1:])
     std = statistics.stdev(times[1:])
 
-    print(quadratize([(v, v_r)], n_diff=1, first_indep=r, search_alg='bnb', printing='pprint'))
+    print(quadratize([(v, v_r)], diff_ord=1, first_indep=r, search_alg='bnb', printing='pprint'))
     
     print('Average time', avg)
     print('Standard deviation', std)

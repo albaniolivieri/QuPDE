@@ -27,12 +27,12 @@ if __name__ == '__main__':
     times = []
     for i in range(10):
         ti = time.time()
-        quadratize([(u, u_t)], 3, search_alg='bnb', max_der_order=5)
+        quadratize([(u, u_t)], diff_ord=3, search_alg='bnb', max_der_order=2)
         times.append(time.time() - ti) 
     avg=statistics.mean(times[1:])
     std=statistics.stdev(times[1:])
 
-    print(quadratize([(u, u_t)], 3, search_alg='bnb', max_der_order=5, printing='pprint'))
+    print(quadratize([(u, u_t)], diff_ord=3, search_alg='bnb', max_der_order=2, printing='pprint'))
 
     print('Average time', avg)
     print('Standard deviation', std)

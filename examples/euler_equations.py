@@ -30,18 +30,17 @@ p_t = -gamma * p * D(u, x) - u * D(p, x)
 
 # we run QuPDE for the Euler equations
 if __name__ == '__main__':
-    profiler = cProfile.Profile()
     times = []
     for i in range(10):
         ti = time.time()
-        quadratize([(rho, rho_t), (u, u_t), (p, p_t)], 2, search_alg='bnb')
+        quadratize([(rho, rho_t), (u, u_t), (p, p_t)], diff_ord=2, search_alg='bnb')
         times.append(time.time() - ti) 
     avg = statistics.mean(times[1:])
     std = statistics.stdev(times[1:])
     
     ti = time.time()
     
-    print(quadratize([(rho, rho_t), (u, u_t), (p, p_t)], 2, search_alg='bnb', printing='pprint'))
+    print(quadratize([(rho, rho_t), (u, u_t), (p, p_t)], diff_ord=2, search_alg='bnb', printing='pprint'))
 
     print('Average time', avg)
     print('Standard deviation', std)
