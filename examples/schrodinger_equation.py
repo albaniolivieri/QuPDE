@@ -4,7 +4,7 @@ import statistics
 import sys
 import time
 sys.path.append("..")
-from qupde.quadratize import quadratize
+from qupde import quadratize
 
 """
 The Harry Dym equation is an important dynamical equation that is integrable and finds applications 

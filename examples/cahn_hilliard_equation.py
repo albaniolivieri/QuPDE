@@ -4,7 +4,7 @@ import time
 import statistics
 import sys
 sys.path.append("..")
-from qupde.quadratize import quadratize
+from qupde import quadratize
 
 """
 The Cahn-Hilliard equation is a partial differential equation was proposed to model certain phenomena 

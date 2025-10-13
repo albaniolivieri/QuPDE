@@ -4,10 +4,7 @@ import sys
 import time
 import statistics
 sys.path.append("..")
-from qupde.quadratize import quadratize
-from qupde.mon_heuristics import *
-import cProfile
-import pstats
+from qupde import quadratize
 
 """
 The HUX (Heliospheric Upwinding eXtrapolation) model is a two-dimensional time-stationary 
@@ -34,7 +31,7 @@ if __name__ == '__main__':
     avg = statistics.mean(times[1:])
     std = statistics.stdev(times[1:])
 
-    print(quadratize([(v, v_r)], diff_ord=1, first_indep=r, search_alg='bnb', printing='pprint'))
+    quadratize([(v, v_r)], diff_ord=1, first_indep=r, search_alg='bnb', printing='pprint')
     
     print('Average time', avg)
     print('Standard deviation', std)

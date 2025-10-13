@@ -4,7 +4,7 @@ import statistics
 import sys
 import time
 sys.path.append("..")
-from qupde.quadratize import quadratize
+from qupde import quadratize
 
 """
 The Harry Dym equation is an important dynamical equation that is integrable and finds applications 
@@ -34,6 +34,6 @@ if __name__ == '__main__':
     print('Average time', avg)
     print('Standard deviation', std)
 
-    print(quadratize([(u, u_t)], diff_ord=4, sort_fun="by_fun", printing = 'latex', max_der_order=1))
+    quadratize([(u, u_t)], diff_ord=4, sort_fun="by_fun", printing = 'latex', max_der_order=1)
     
     

@@ -4,7 +4,7 @@ import time
 import statistics
 import sys
 sys.path.append("..")
-from qupde.quadratize import quadratize
+from qupde import quadratize
 
 """
 The non-adiabatic tubular reactor model describes species concentration and temperature evolution in a single reaction:
@@ -54,19 +54,19 @@ if __name__ == "__main__":
             search_alg="bnb",
         )
         times.append(time.time() - ti)
-    print('Times:', times) 
+
     avg = statistics.mean(times[1:])
     std = statistics.stdev(times[1:])
     print("Average time", avg)
     print("Standard deviation", std)
     
-    print(quadratize(
+    quadratize(
         [(psi, psi_t), (theta, theta_t), (y, y_t)],
         diff_ord=2,
         nvars_bound=7,
         max_der_order=3,
         search_alg="bnb",
         printing="pprint",
-    ))
+    )
 
 

@@ -17,13 +17,13 @@ ut1 = D(u, x)**2/u
 
 
 if __name__ == '__main__':
-    print('Testing quadratization of PDEs with fractions')
+    print('Testing quadratization of rational PDEs')
     pdes = [ut1]
     for eq in pdes: 
         times = []
         for i in range(2):
             ti = time.time()
-            quad, vfrac, _ = quadratize([(u, eq)], 3, search_alg='bnb', max_der_order=5, printing='pprint')
+            quad, vfrac = quadratize([(u, eq)], 3, search_alg='bnb', max_der_order=5, printing='pprint')
             print(f'Quadratization for {eq}:', quad, vfrac)
             times.append(time.time() - ti)
         if quad:

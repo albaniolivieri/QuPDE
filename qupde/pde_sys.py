@@ -9,9 +9,9 @@ from .fraction_decomp import FractionDecomp
 from .mon_heuristics import *
 
 
-class RatSys:
+class PDESys:
     """
-    A class used to represent a PDE system as polynomial expressions
+    A class used to represent a PDE system 
 
     ...
 
@@ -246,7 +246,6 @@ class RatSys:
                     )
                 else:
                     dic_t[self.poly_vars[(der_order + 1) * k]] = self.pde_eq[k][1]
-
         count = last + 2
         for rel in self.frac_decomps.rels:
             frac_der_t = self.frac_decomps.diff_frac(rel, dic_t) # we save the result to use it later
@@ -295,6 +294,16 @@ class RatSys:
             a list of the fraction variables introduced
         """
         return self.new_vars["frac_vars"]
+    
+    def get_poly_vars(self) -> list[PolyElement]:
+        """Gets the fraction variables introduced in the system
+
+        Returns
+        -------
+        list[PolyElement]
+            a list of the fraction variables introduced
+        """
+        return self.new_vars["new_vars"]
 
     def get_max_order(self) -> int:
         """Gets the max derivative order of the system
@@ -338,6 +347,7 @@ class RatSys:
 
         for name, expr in named_new_vars:
             var_ord = self.order - get_diff_order(expr)
+            if var_ord<0: var_ord = 0
             for i in range(1, var_ord + 1):
                 deriv_x.append(
                     (
@@ -349,7 +359,9 @@ class RatSys:
                 )
 
         for rel in self.frac_decomps.rels:
-            for i in range(1, self.order + 1):
+            var_ord = self.order - get_diff_order(rel[1])
+            if var_ord<0: var_ord = 0
+            for i in range(1, var_ord + 1):
                 deriv_x.append(
                     (
                         sp.symbols(f"{rel[0].name}{self.sec_indep}{i}"),
@@ -375,7 +387,6 @@ class RatSys:
         new_vars_t, new_vars_x = self.differentiate_dict(new_vars_named)
         deriv_t = new_vars_t + self.frac_der_t + self.pde_eq
         poly_vars = list(filter(lambda x: str(x)[0] != "q", self.poly_vars))
-        
         V = (
             [(1, self.poly_vars[0].ring(1))]
             + [(sp.symbols(f"{sym}"), sym) for sym in poly_vars]

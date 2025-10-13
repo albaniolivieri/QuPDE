@@ -4,7 +4,7 @@ import time
 import statistics
 import sys
 sys.path.append("..")
-from qupde.quadratize import quadratize
+from qupde import quadratize
 
 """
 The compacton equation is generalization of the KdV equation in which the dispersion too is nonlinear. The solutions of this equation

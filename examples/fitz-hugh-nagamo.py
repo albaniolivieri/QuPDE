@@ -4,8 +4,7 @@ import time
 import statistics
 import sys
 sys.path.append("..")
-from qupde.quadratize import quadratize
-from qupde.mon_heuristics import *
+from qupde import quadratize
 
 """
 The FitzHugh-Nagumo system is a simplified neuron model of the Hodgkin-Huxley model, 
@@ -34,7 +33,7 @@ if __name__ == '__main__':
     avg = statistics.mean(times[1:])
     std = statistics.stdev(times[1:])
 
-    print(quadratize([(v, v_t), (y, y_t)], 3, search_alg='bnb', printing='pprint'))
+    quadratize([(v, v_t), (y, y_t)], 3, search_alg='bnb', printing='pprint')
 
     print('Average time', avg)
     print('Standard deviation', std)

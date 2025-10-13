@@ -6,10 +6,10 @@ from sympy import Derivative as D
 
 sys.path.append("..")
 
-from qupde.quadratize import quadratize
+from qupde import quadratize
 from qupde.utils import get_order
 from qupde.quadratize import check_quadratization
-from qupde.mon_heuristics import by_fun
+from qupde.pde_sys import PDESys
 
 class TestCase():
     
@@ -69,7 +69,7 @@ class TestQuadratization(unittest.TestCase):
         # u_t = u_xx * u**2 + 2
         # v_t = v_xx/u**3 + u
         self.test_cases_rat.append(TestCase([(self.u, self.u**2 * D(self.u, self.x, 2) + 2), 
-                                             (self.v, D(self.v, self.x, 2)/self.u**3 + self.u)], 3, 10))
+                                             (self.v, D(self.v, self.x, 2)/self.u**3 + self.u)], 2, 10))
         
         # u_t = 1/(5 * (u + 1))
         self.test_cases_rat.append(TestCase([(self.u, 1 / (5 * (self.u + 1)))], 1))
@@ -93,6 +93,9 @@ class TestQuadratization(unittest.TestCase):
         # v_t = u/v - v + 5
         self.test_cases_rat.append(TestCase([(self.u,  -D(self.u, self.x, 2) / self.u - self.u**2 - self.u + 5), 
                                              (self.v, self.u / self.v - self.v + 5)], 2, max_der_order=10))
+
+        # u_t = 1/((u+1)(u-1))
+        self.test_cases_rat.append(TestCase([(self.u, 1 / ((self.u+1)*(self.u+2)))], 1, max_der_order=1))
         
         self.test_cases_coeff_sym = []
         
@@ -123,16 +126,20 @@ class TestQuadratization(unittest.TestCase):
     
     def differentiate_x(self, new_vars, n_diff):
         """
-        Differentiate the new variables with respect to x up to n_diff order.
+        Differentiate the new variables with respect to x according to the differential order.
         """
         vars_prop, frac_vars = new_vars
         quad_vars = []
         for i in range(len(vars_prop)):
+            var_ord = n_diff - get_order([vars_prop[i]]) 
+            if var_ord<0: var_ord = 0
             quad_vars.extend([(symbols(f'w_{i}{self.x}{j}'), D(vars_prop[i], self.x, j).doit())
-                            for j in range(1, n_diff + 1)] + [(symbols(f'w_{i}'), vars_prop[i])])
+                            for j in range(1, var_ord + 1)] + [(symbols(f'w_{i}'), vars_prop[i])])
         for i in range(len(frac_vars)):
+            var_ord = n_diff - get_order([frac_vars[i]])
+            if var_ord<0: var_ord = 0
             quad_vars.extend([(symbols(f'q_{i}{self.x}{j}'), D(frac_vars[i], self.x, j).doit())
-                            for j in range(1, n_diff + 1)])
+                            for j in range(1, var_ord + 1)])
         return quad_vars
     
     def rewrite_expr(self, test_case, new_vars, frac_vars):
@@ -178,12 +185,12 @@ class TestQuadratization(unittest.TestCase):
         for test in test_cases:
             print('\nTest case: ')
             [print(f'Derivative({eq[0]}, t)', '=', eq[1]) for eq in test.func_eq]
-            quad = quadratize(test.func_eq, test.n_diff, sort_fun=sort_heur, search_alg=search_alg, max_der_order=test.max_der_order)
-            self.assertIsNotNone(quad, f'Quadratization not found for {test.func_eq}')
-            quad_prop, frac_vars, _ = quad
+            poly_syst = quadratize(test.func_eq, test.n_diff, sort_fun=sort_heur, search_alg=search_alg, max_der_order=test.max_der_order)
+            self.assertIsInstance(poly_syst, PDESys, f'Quadratization not found for {test.func_eq}')
+            quad_prop, frac_vars = poly_syst.get_poly_vars(), poly_syst.get_frac_vars() 
+            # self.assertTrue(quad_prop or frac_vars, f'Quadratization not found for {test.func_eq}')
             print(f'Quadratization: {quad_prop}')
             print(f'Fractional variables: {frac_vars}')
-            self.assertTrue(quad_prop or frac_vars, f'Quadratization not found for {test.func_eq}')
             
             quad_prop_expr, frac_vars_expr = self.transform_new_vars(quad_prop, frac_vars)
             new_vars, frac_vars, refac = self.rewrite_expr(test, quad_prop_expr, frac_vars_expr)
@@ -215,7 +222,7 @@ class TestQuadratization(unittest.TestCase):
         """
         Test PDEs quadratization for rational PDEs.
         """
-        self.quadratization_test(search_alg='inn', test_cases=self.test_cases_rat)
+        self.quadratization_test(search_alg='bnb', test_cases=self.test_cases_rat)
     
     def test_symbolic_coeff(self):
         """

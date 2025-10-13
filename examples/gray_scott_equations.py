@@ -4,7 +4,7 @@ import time
 import statistics
 import sys
 sys.path.append("..")
-from qupde.quadratize import quadratize
+from qupde import quadratize
 
 """
 The Gray-Scott equations are a system of reaction-diffusion equations that model the interaction of two generic chemical species:

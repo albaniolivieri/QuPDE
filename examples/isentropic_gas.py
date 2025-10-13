@@ -6,7 +6,7 @@ import sys
 import math 
 sys.path.append("..")
 from qupde.polynomialization import polynomialize 
-from qupde.quadratize import quadratize as quad_bb
+from qupde import quadratize as quad_bb
 
 t, zetav = symbols('t zeta')
 alpha = Function('alpha')(t, zetav)

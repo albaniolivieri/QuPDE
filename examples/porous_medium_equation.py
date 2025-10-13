@@ -4,7 +4,7 @@ import time
 import statistics
 import sys
 sys.path.append("..")
-from qupde.quadratize import quadratize
+from qupde import quadratize
 
 """
 The porous medium equation is a nonlinear diffusion equation that has applications in biology, notably in models of animal and
