@@ -4,7 +4,7 @@ import time
 import statistics
 import sys
 sys.path.append("..")
-from qupde.quadratize import quadratize
+from qupde import quadratize
 
 """
 The non-adiabatic tubular reactor model describes species concentration and temperature evolution in a single reaction:
@@ -26,7 +26,7 @@ D_ct = sp.symbols("D", constant=True)
 beta = sp.symbols("beta", constant=True)
 theta_ref = sp.symbols("theta_ref", constant=True)
 gamma = sp.symbols("gamma", constant=True)
-mu = sp.symbols("mu", constant=True)
+# mu = sp.symbols("mu", constant=True)
 
 psi_t = (
     (1 / Pe) * D(psi, s, 2)
@@ -37,37 +37,39 @@ theta_t = (
     (1 / Pe) * D(theta, s, 2)
     - D(theta, s)
     - beta * (theta - theta_ref)
-    + B * D_ct/mu * psi * y
+    + B * D_ct * psi * y
 )
-y_t = gamma/theta**2 * y * ((1 / Pe) * D(theta, s, 2) - D(theta, s) -
-                            beta * (theta - theta_ref) + B * D_ct/mu * psi * y)
+y_t = gamma/theta**2 * y * theta_t
 
 # we run QuPDE for the tubular reactor model
 if __name__ == "__main__":
     times = []
-    # print('start time', time.time())
     for i in range(3):
         ti = time.time()
         quadratize(
             [(psi, psi_t), (theta, theta_t), (y, y_t)],
-            n_diff=2,
+            diff_ord=2,
             nvars_bound=7,
             max_der_order=3,
             search_alg="bnb",
         )
         times.append(time.time() - ti)
-    avg = statistics.mean(times)
-    std = statistics.stdev(times)
-    print("Average time", avg)
-    print("Standard deviation", std)
-    ti = time.time()
-    print(quadratize(
+
+    avg = statistics.mean(times[1:])
+    std = statistics.stdev(times[1:])
+    
+    quadratize(
         [(psi, psi_t), (theta, theta_t), (y, y_t)],
-        n_diff=2,
+        diff_ord=2,
         nvars_bound=7,
         max_der_order=3,
         search_alg="bnb",
         printing="pprint",
-    ))
-    print("Time taken:", time.time() - ti)
+    )
+    
+    print("Average time", avg)
+    print("Standard deviation", std)
+    
+    
+
 

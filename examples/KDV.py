@@ -4,7 +4,7 @@ import sys
 import time
 import statistics
 sys.path.append("..")
-from qupde.quadratize import quadratize
+from qupde import quadratize
 
 """
 The Korteweg-de Vries (KDV) equation is a generic model for the study of weakly nonlinear long waves, 
@@ -27,12 +27,12 @@ if __name__ == '__main__':
     times= []
     for i in range(10):
         ti = time.time()
-        quadratize([(u, u_t)], 2, search_alg = 'bnb')
+        quadratize([(u, u_t)])
         times.append(time.time() - ti) 
-    avg = statistics.mean(times)
-    std = statistics.stdev(times)
+    avg = statistics.mean(times[1:])
+    std = statistics.stdev(times[1:])
     
-    quadratize([(u, u_t)], 2, search_alg = 'bnb', printing = 'pprint')
-
+    quadratize([(u, u_t)], printing = 'pprint')
+    
     print('Average time', avg)
     print('Standard deviation', std)

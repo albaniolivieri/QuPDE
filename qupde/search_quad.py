@@ -5,9 +5,8 @@ from queue import PriorityQueue
 from collections import deque
 from itertools import chain, combinations
 from sympy.polys.rings import PolyElement
-# from .var_selection import prop_new_vars
 from .utils import get_diff_order
-from .rat_sys import RatSys
+from .pde_sys import PDESys
 
 
 def pruning_rule_nvars(nvars: int, global_nvars: int) -> bool:
@@ -51,7 +50,7 @@ def pruning_rule_time(start_time: float, max_time: float) -> bool:
     return False
 
 
-def pruning_rule_order(new_vars: list[PolyElement], max_order: int) -> bool:
+def pruning_rule_order(new_vars: list[PolyElement], max_order: int, pde_sys) -> bool:
     """Pruning rule based on the maximum order of derivatives allowed.
 
     Parameters
@@ -68,11 +67,11 @@ def pruning_rule_order(new_vars: list[PolyElement], max_order: int) -> bool:
         than the maximum order allowed, False otherwise
     """
     for var in new_vars:
-        if get_diff_order(var) > max_order / 2:
+        if get_diff_order(var) > max_order or (pde_sys.order - get_diff_order(var)) < 0:
             return True
     return False
 
-def shrink_quad(quad_vars: list[PolyElement], poly_syst: RatSys) -> list[PolyElement]:
+def shrink_quad(quad_vars: list[PolyElement], poly_syst: PDESys) -> list[PolyElement]:
     """Checks if the quadratization can be shrunk to a smaller set of variables.
 
     Parameters
@@ -99,7 +98,7 @@ def shrink_quad(quad_vars: list[PolyElement], poly_syst: RatSys) -> list[PolyEle
 def bnb(
     new_vars: list[PolyElement],
     best_nvars: int,
-    poly_syst: RatSys,
+    poly_syst: PDESys,
     sort_fun: Callable,
     max_der_order: int,
 ) -> tuple[list[PolyElement], int, int]:
@@ -128,10 +127,10 @@ def bnb(
         return None, math.inf, 1
 
     if not max_der_order:
-        if pruning_rule_order(new_vars, poly_syst.get_max_order()):
+        if pruning_rule_order(new_vars, poly_syst.get_max_order(), poly_syst):
             return None, math.inf, 1
     else:
-        if pruning_rule_order(new_vars, max_der_order):
+        if pruning_rule_order(new_vars, max_der_order, poly_syst):
             return None, math.inf, 1
 
     poly_syst.set_new_vars(new_vars)
@@ -161,7 +160,7 @@ def bnb(
     return best_quad_vars, min_nvars, traversed_total
 
 def nearest_neighbor(
-    poly_syst: RatSys, sort_fun: Callable, new_vars: Optional[list[PolyElement]] = []
+    poly_syst: PDESys, sort_fun: Callable, new_vars: Optional[list[PolyElement]] = []
 ) -> tuple[list[PolyElement], int]:
     """Incremental nearest neighbor algorithm to find the best quadratization of a polynomial system.
 

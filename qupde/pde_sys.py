@@ -1,16 +1,17 @@
 from typing import Optional, Callable
+import math
 import sympy as sp
 from sympy.polys.rings import PolyElement
 from sympy import Derivative as D
-from .quadratization import is_quadratization
-from .utils import diff_dict, get_order, remove_vars, get_decompositions, sort_vars
+from .verify_quad import is_quadratization
+from .utils import diff_dict, get_order, remove_vars, get_decompositions, sort_vars, get_diff_order
 from .fraction_decomp import FractionDecomp
 from .mon_heuristics import *
 
 
-class RatSys:
+class PDESys:
     """
-    A class used to represent a PDE system as polynomial expressions
+    A class used to represent a PDE system 
 
     ...
 
@@ -25,7 +26,7 @@ class RatSys:
     consts : list[sp.Symbol]
         a list of all the constants in the system
     order : int
-        an integer representing the order of second variable derivatives
+        an integer representing the differentiation order of the quadratization 
     frac_decomps : FractionDecomp
         a FractionDecomp object that stores the fraction decomposition of the system
     poly_vars : PolyElement
@@ -43,6 +44,8 @@ class RatSys:
         a dictionary that stores spatial derivatives
     frac_der_t : list[PolyElement]
         a list of the derivatives with respect to t of the fraction variables
+    quad_sys : list[tuple]
+        a list with tuples that represent the new quadratic PDE
 
     Methods
     -------
@@ -52,16 +55,22 @@ class RatSys:
         Builds dictionary that links a symbol with
         its symbol derivative
     set_new_vars(new_vars)
-        Sets the attribute new_vars to parameter passed
-    get_frac_vars()
-        Returns the fraction variables introduced in the system
+        Updates the attribute new_vars with new auxiliary variables
+    set_NS_list(NS_list)
+        Updates the `NS_list` attribute with the list of non-quadratic PDE expressions
+    set_quad_sys(quad_sys)
+        Updates the `quad_sys` attribute with the quadratic PDE system
+    get_aux_vars()
+        Returns the polynomial and rational auxiliary variables
     get_max_order()
         Returns the max derivative order of the system
+    get_quad_sys()
+        Returns the quadratic PDE system as a list of tuples
     differentiate_dict(named_new_vars)
         Builds two dictionaries with new variables derivatives in first
         and second variable
     try_make_quadratic()
-        Gets the quadratization of the PDE using the new variables introduced
+        Returns the quadratization of the PDE using the new variables introduced
     prop_new_vars(sort_fun)
         Proposes new variables and sorts them according to sort_fun for the quadratization of the PDE system
     """
@@ -79,7 +88,7 @@ class RatSys:
         pde_sys
             Tuples with the symbol and expression of PDE
         n_diff
-            The number of second variable differentiations to do
+            The  order of the quadratization 
         var_indep
             The symbol of the second independent variable
         new_vars : optional
@@ -106,6 +115,7 @@ class RatSys:
         self.dic_t = dic_t
         self.dic_x = dic_x
         self.frac_der_t = frac_der_t
+        self.quad_sys = []
 
     def build_ring(
         self, func_eq: list[tuple[sp.Function, sp.Expr]], new_vars: list[sp.Expr]
@@ -245,7 +255,6 @@ class RatSys:
                     )
                 else:
                     dic_t[self.poly_vars[(der_order + 1) * k]] = self.pde_eq[k][1]
-
         count = last + 2
         for rel in self.frac_decomps.rels:
             frac_der_t = self.frac_decomps.diff_frac(rel, dic_t) # we save the result to use it later
@@ -284,8 +293,22 @@ class RatSys:
         None
         """
         self.NS_list = NS_list
+        
+    def set_quad_sys(self, quad_sys):
+        """Sets with a new value the quad_sys attribute
 
-    def get_frac_vars(self) -> list[PolyElement]:
+        Parameters
+        ----------
+        quad_sys
+            List of quadratic expressions in the PDE using the auxiliary variables in the system
+
+        Returns
+        -------
+        None
+        """
+        self.quad_sys = quad_sys
+    
+    def get_aux_vars(self) -> list[PolyElement]:
         """Gets the fraction variables introduced in the system
 
         Returns
@@ -293,7 +316,7 @@ class RatSys:
         list[PolyElement]
             a list of the fraction variables introduced
         """
-        return self.new_vars["frac_vars"]
+        return self.new_vars["new_vars"], self.new_vars["frac_vars"]
 
     def get_max_order(self) -> int:
         """Gets the max derivative order of the system
@@ -304,6 +327,16 @@ class RatSys:
             the max derivative order of the system
         """
         return self.max_order
+    
+    def get_quad_sys(self):
+        """Gets the quadratic PDE system
+
+        Returns
+        -------
+        list
+            a list with tuples that represent each quation
+        """
+        return self.quad_sys
 
     def differentiate_dict(
         self, named_new_vars: tuple[sp.Symbol, PolyElement]
@@ -336,7 +369,9 @@ class RatSys:
             )
 
         for name, expr in named_new_vars:
-            for i in range(1, self.order + 1):
+            var_ord = self.order - get_diff_order(expr)
+            if var_ord<0: var_ord = 0
+            for i in range(1, var_ord + 1):
                 deriv_x.append(
                     (
                         sp.symbols(f"{name}{self.sec_indep}{i}"),
@@ -347,7 +382,9 @@ class RatSys:
                 )
 
         for rel in self.frac_decomps.rels:
-            for i in range(1, self.order + 1):
+            var_ord = self.order - get_diff_order(rel[1])
+            if var_ord<0: var_ord = 0
+            for i in range(1, var_ord + 1):
                 deriv_x.append(
                     (
                         sp.symbols(f"{rel[0].name}{self.sec_indep}{i}"),
@@ -373,7 +410,6 @@ class RatSys:
         new_vars_t, new_vars_x = self.differentiate_dict(new_vars_named)
         deriv_t = new_vars_t + self.frac_der_t + self.pde_eq
         poly_vars = list(filter(lambda x: str(x)[0] != "q", self.poly_vars))
-
         V = (
             [(1, self.poly_vars[0].ring(1))]
             + [(sp.symbols(f"{sym}"), sym) for sym in poly_vars]
@@ -404,28 +440,34 @@ class RatSys:
             the proposed new variables
         """
         list_vars = []
-        NS_list = sorted(self.NS_list, key=lambda x: str(x[0]))
-        for ns_pol in NS_list:
-            for monom in ns_pol[1].itermonoms():
-                list_vars += get_decompositions(monom)
-                break
-            break
 
+        min_monom = (0,)*len(self.NS_list[0][1].leading_expv())
+        
+        for ns_pol in self.NS_list:
+            monoms = [m for m in ns_pol[1].itermonoms() if sum(m) > 2]
+        if monoms:
+            min_monom = min(monoms, key=lambda m: sum(m))
+            
+        list_vars += get_decompositions(min_monom)
+        
         list_vars = list(
             map(
                 lambda x: (
-                    NS_list[0][1].ring({x[0]: 1}),
-                    NS_list[0][1].ring({x[1]: 1}),
+                    self.NS_list[0][1].ring({x[0]: 1}),
+                    self.NS_list[0][1].ring({x[1]: 1}),
                 ),
                 list_vars,
             )
         )
 
         list_vars = remove_vars(list_vars, self.new_vars["new_vars"])
+        
+        new_vars = list_vars[:]
 
         for i in range(len(list_vars)):
             if not list_vars[i]:
-                list_vars.remove(list_vars[i])
+                new_vars.remove(list_vars[i])
 
-        sorted_vars = sort_vars(list_vars, sort_fun)
+        sorted_vars = sort_vars(new_vars, sort_fun)
+
         return sorted_vars

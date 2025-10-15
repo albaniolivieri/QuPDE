@@ -4,7 +4,7 @@ import time
 import statistics
 import sys
 sys.path.append("..")
-from qupde.quadratize import quadratize
+from qupde.quadratization import quadratize
 
 #tests
 t, x = symbols('t x')
@@ -52,7 +52,7 @@ if __name__ == '__main__':
         times = []
         for i in range(2):
             ti = time.time()
-            quad = quadratize([(u, eq)], 2, search_alg='bnb', max_der_order=0, printing='pprint')[0]
+            quad = quadratize([(u, eq)], 2, search_alg='bnb', max_der_order=10, printing='pprint', nvars_bound=11)[0]
             times.append(time.time() - ti)
         if quad:
             print(f'result for {eq}', f'new variables: {quad}', f'order: {len(quad)}', f'avg: {statistics.mean(times)}',

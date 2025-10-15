@@ -4,7 +4,7 @@ import time
 import statistics
 import sys
 sys.path.append("..")
-from qupde.quadratize import quadratize
+from qupde import quadratize
 
 """
 The compacton equation is generalization of the KdV equation in which the dispersion too is nonlinear. The solutions of this equation
@@ -28,8 +28,8 @@ if __name__ == '__main__':
         ti = time.time()
         quadratize([(u, u_t)], 3, search_alg = 'bnb')
         times.append(time.time() - ti) 
-    avg = statistics.mean(times)
-    std = statistics.stdev(times)
+    avg = statistics.mean(times[1:])
+    std = statistics.stdev(times[1:])
     
     quadratize([(u, u_t)], 3, search_alg = 'bnb', printing = 'pprint')
 

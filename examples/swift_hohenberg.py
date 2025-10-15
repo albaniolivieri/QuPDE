@@ -4,7 +4,7 @@ import sys
 import time
 import statistics
 sys.path.append("..")
-from qupde.quadratize import quadratize
+from qupde.quadratization import quadratize
 
 """
 The Swift-Hohenberg equation is a partial differential equation for a scalar field which has been widely
@@ -24,12 +24,12 @@ if __name__ == '__main__':
     times= []
     for i in range(10):
         ti = time.time()
-        quadratize([(u, u_t)], n_diff=4, search_alg = 'bnb', max_der_order=4)
+        quadratize([(u, u_t)], diff_ord=4, search_alg = 'bnb', max_der_order=4)
         times.append(time.time() - ti) 
-    avg = statistics.mean(times)
-    std = statistics.stdev(times)
+    avg = statistics.mean(times[1:])
+    std = statistics.stdev(times[1:])
     
-    quadratize([(u, u_t)], n_diff=4, search_alg = 'bnb', max_der_order=4, printing = 'latex')
+    quadratize([(u, u_t)], diff_ord=4, search_alg = 'bnb', max_der_order=4, printing = 'latex')
 
     print('Average time', avg)
     print('Standard deviation', std)

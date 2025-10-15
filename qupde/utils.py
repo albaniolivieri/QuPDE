@@ -23,7 +23,6 @@ def get_order(set_derivs: list[sp.Symbol]) -> int:
     int
         the maximum order of derivatives
     """
-
     max_order = 0
     for deriv in set_derivs:
         max_order = reduce(max, [der.args[1][1] for der in deriv.atoms(D)], max_order)
@@ -219,3 +218,6 @@ def get_diff_order(pol: PolyElement) -> int:
         if str(var)[-1].isnumeric():
             order += int(str(var)[-1])
     return order
+
+def get_diff_order_pol(pol) -> int: 
+    print([der.args[1][1] for der in pol.atoms(D)])

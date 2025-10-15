@@ -4,7 +4,7 @@ import time
 import statistics
 import sys
 sys.path.append("..")
-from qupde.quadratize import quadratize
+from qupde import quadratize
 
 """
 The Euler equations are derived from tile physical principles of conservation of mass, momentum, and energy:
@@ -31,12 +31,14 @@ if __name__ == '__main__':
     times = []
     for i in range(10):
         ti = time.time()
-        quadratize([(rho, rho_t), (u, u_t), (p, p_t)], 2, search_alg='bnb')
+        quadratize([(rho, rho_t), (u, u_t), (p, p_t)], diff_ord=1, search_alg='bnb')
         times.append(time.time() - ti) 
-    avg = statistics.mean(times)
-    std = statistics.stdev(times)
+    avg = statistics.mean(times[1:])
+    std = statistics.stdev(times[1:])
     
-    quadratize([(rho, rho_t), (u, u_t), (p, p_t)], 2, search_alg='bnb', printing='pprint')
+    ti = time.time()
+    
+    quadratize([(rho, rho_t), (u, u_t), (p, p_t)], diff_ord=1, search_alg='bnb', printing='pprint')
 
     print('Average time', avg)
     print('Standard deviation', std)
