@@ -8,7 +8,7 @@ sys.path.append("..")
 
 from qupde import quadratize
 from qupde.utils import get_order
-from qupde.quadratize import check_quadratization
+from qupde.quadratization import check_quadratization
 from qupde.pde_sys import PDESys
 
 class TestCase():
@@ -187,7 +187,7 @@ class TestQuadratization(unittest.TestCase):
             [print(f'Derivative({eq[0]}, t)', '=', eq[1]) for eq in test.func_eq]
             poly_syst = quadratize(test.func_eq, test.n_diff, sort_fun=sort_heur, search_alg=search_alg, max_der_order=test.max_der_order)
             self.assertIsInstance(poly_syst, PDESys, f'Quadratization not found for {test.func_eq}')
-            quad_prop, frac_vars = poly_syst.get_poly_vars(), poly_syst.get_frac_vars() 
+            quad_prop, frac_vars = poly_syst.get_aux_vars()
             # self.assertTrue(quad_prop or frac_vars, f'Quadratization not found for {test.func_eq}')
             print(f'Quadratization: {quad_prop}')
             print(f'Fractional variables: {frac_vars}')

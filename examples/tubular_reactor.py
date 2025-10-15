@@ -55,10 +55,7 @@ if __name__ == "__main__":
         times.append(time.time() - ti)
     avg = statistics.mean(times)
     std = statistics.stdev(times)
-
-    print("Average time", avg)
-    print("Standard deviation", std)
-
+    
     quadratize(
             [(psi, psi_t), (theta, theta_t)],
             diff_ord=2,
@@ -67,5 +64,10 @@ if __name__ == "__main__":
             search_alg="bnb",
             printing="latex",
         )
+
+    print("Average time", avg)
+    print("Standard deviation", std)
+
+    
 
 

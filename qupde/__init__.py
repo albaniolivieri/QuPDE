@@ -1,1 +1,1 @@
-from .quadratize import quadratize, check_quadratization, print_quad
+from .quadratization import quadratize, check_quadratization, print_quad

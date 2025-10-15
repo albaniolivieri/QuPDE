@@ -4,7 +4,7 @@ import sys
 import time
 import statistics
 sys.path.append("..")
-from qupde.quadratize import quadratize
+from qupde.quadratization import quadratize
 
 """
 The Swift-Hohenberg equation is a partial differential equation for a scalar field which has been widely

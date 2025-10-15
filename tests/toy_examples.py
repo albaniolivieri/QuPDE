@@ -4,7 +4,7 @@ import time
 import statistics
 import sys
 sys.path.append("..")
-from qupde.quadratize import quadratize
+from qupde.quadratization import quadratize
 
 #tests
 t, x = symbols('t x')

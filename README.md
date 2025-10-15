@@ -1,6 +1,6 @@
 
 # QuPDE
-QuPDE is a Python library that finds an optimal and monomial quadratic transformation (quadratization) for nonquadratic PDEs using Sympy. QuPDE handles one-dimensional PDEs that are polynomial or rational. 
+QuPDE is a Python library that finds a quadratic transformation (quadratization) for nonquadratic PDEs built using Sympy objects. QuPDE handles spatially one-dimensional PDEs that are polynomial or rational. 
 
 ## Table of Contents
 
@@ -13,7 +13,7 @@ QuPDE is a Python library that finds an optimal and monomial quadratic transform
 
 ## Overview
 
-A quadratization for a PDE is the set of auxiliary variables we introduce to rewrite the right-hand-side differential equations as quadratic. An optimal quadratization refers to the minimum number of new variables to achieve this transformation. QuPDE outputs this optimal set of new variables and gives the corresponding transformation of the differential equations.
+A quadratization for a PDE is the set of auxiliary variables we introduce to rewrite the right-hand side differential equations as quadratic. QuPDE outputs set of a low number of new variables and gives the corresponding transformation of the differential equations.
 
 ## Installation
 ### Install using PyPI: 
@@ -37,38 +37,53 @@ pip install -r requirements.txt
 
 ## Usage
 
-For interactive usage examples, go to [Colab notebook](https://colab.research.google.com/drive/1qbMoZTL0SMJ5tdp8dHXULBjnxvWJjmo_?usp=sharing).
+For interactive usage examples, go to qupde_usage_examples.ipynb file or [Colab notebook](https://colab.research.google.com/drive/1qbMoZTL0SMJ5tdp8dHXULBjnxvWJjmo_?usp=sharing).
 
-To find a quadratization for the PDE $$u_t = u_x^3u_{xxx}$$ (Dym equation), we first write the differential equation:
+To find a quadratization for the PDE $$u_t = a u^2 * u_x - u_{xxx}$$ (Korteweg-de Vries equation), we first write the differential equation:
 
 ```python 
 from sympy import symbols, Function, Derivative
+from qupde import quadratize
 
-t, x = symbols('t x')
-u = Function('u')(t,x)
+t, x = sp.symbols('t x')
+u = sp.Function('u')(t,x)
+a = sp.symbols('a', constant=True)
 
-u_t = u**3 * Derivative(u, x, 3)
+u_t =  a * u**2 * Derivative(u, x) - Derivative(u, x, 3)
 ```
 Now we call the main function of the software *quadratize*. This function receives a list of tuples representing each undefined function with its corresponding differential equation within the PDE system. In our example: 
 
 ```python 
-quadratize([(u, u_t)])
+new_pde = quadratize([(u, u_t)])
 ```
 
-This function returns the optimal set of new variables (polynomial and rational) introduced to obtain a quadratic representation of the PDE. In this case, it returns 
+*quadratize* returns an object with the PDE quadratic transformation that stores the new PDE and the auxiliary variables introduced (polynomial and rational). We can get the auxiliary variables and the quadratic transformation by running
  
+```python 
+new_pde.get_aux_vars()
+```
 ```console 
-([u**3, u*u_x1**2], [])
+([u**2], [])
+```
+```python 
+new_pde.get_quad_sys()
+```
+```console 
+[Eq(w_0t, a*w_0*w_0x1 + 6*u_x1*u_x2 - w_0x3), Eq(u_t, a*u_x1*w_0 - u_x3)]
 ```
 
-Besides the PDE input, users can provide a refularity restriction for the quadratic transformation through the parameter *diff_ord*. This number determines the differential order of the quadratization: the maximal spatial-derivative order of the PDE's original variable allowed. By default this value is set to 3. 
-If we set this value in the previous example to 2, we obtain: 
+Besides the PDE input, users can provide a regularity restriction for the quadratic transformation through the parameter *diff_ord*. This number determines the differential order of the quadratization: the maximum spatial-derivative order of the PDE's original variables allowed. By default, this value is set to the maximum order of derivatives found for the unknown functions in the PDE. 
+If we set this value in the previous example to 0
+```python 
+quadratize([(u, u_t)], diff_ord=0)
+```
+we obtain: 
 ```console 
 Quadratization not found
 ```
-indicating an unsuccesful search. This shows that the number of derivatives allowed directly affects the algorithm's ability to find a quadratization. Therefore, incresing this parameter may help when encountered with an unsuccesful search.
+which indicates an unsuccesful search. This shows how the order of derivatives allowed directly affects the algorithm's ability to find a quadratization. Therefore, incresing this parameter may help when encountering an unsuccesful search.
 
-In addition, we can print the new variables with their corresponding transformations by calling the same function but with the optional *printing* parameter set with the available printing options: 
+Additionally, we can print the new variables and their corresponding transformations in a more readable format by calling the same function with the optional printing parameter set to one of the available printing options. 
 - `'pprint'` for pretty printing (Sympy's functionality) 
 - `'latex'` for printing the result in latex code. 
 The command
@@ -80,19 +95,13 @@ quadratize([(u, u_t)], printing='pprint')
 outputs
 ```console 
 Quadratization:
-      3
+      2
 w₀ = u 
-          2
-w₁ = u⋅uₓ₁ 
 
 Quadratic PDE:
-w₀ₜ = w₀⋅w₀ₓ₃ - 2⋅w₀ₓ₁⋅w₀ₓ₂ + 10⋅w₀ₓ₁⋅w₁
-                2⋅w₀ₓ₂⋅w₀ₓ₃                                       
-w₁ₜ = w₀⋅w₁ₓ₃ - ─────────── + 4⋅w₀ₓ₂⋅w₁ₓ₁ + 4⋅w₀ₓ₃⋅w₁ - 24⋅w₁⋅w₁ₓ₁
-                     3                                            
-uₜ = uₓ₃⋅w₀
+w₀ₜ = a⋅w₀⋅w₀ₓ₁ - 2⋅u⋅uₓ₃
+uₜ = a⋅uₓ₁⋅w₀ - uₓ₃
 ```
-
 
 ## Examples
 We show a complete example using QuPDE's main function *quadratize* to find a quadratization for the Allen-Cahn equation: $$u_t = u_{xx} + u - u^3.$$ 
@@ -109,7 +118,7 @@ u = sp.Function('u')(t,x)
 u_t = D(u, x, 2) + u - u**3 
 
 # run QuPDE for the Allen-Cahn equation
-quadratize([(u, u_t)], search_alg='bnb', printing='pprint')
+quadratize([(u, u_t)], printing='pprint')
 ```
 This example outputs
 ```console 
@@ -122,6 +131,24 @@ Quadratic PDE:
 w₀ₜ = 2⋅u  + 2⋅u⋅uₓ₂ - 2⋅w₀ 
 uₜ = -u⋅w₀ + u + uₓ₂
 ```
+
+The table below shows some of the PDE examples for which QuPDE has found quadratizations. 
+
+| PDE | Quadratization variables |
+|------|---------------------------|
+| Solar wind model | $1/u$ |
+| Modified KdV | $u^2$ |
+| Allen-Cahn equation | $u^2$ |
+| Schl{\"o}gl model | $u^2$ |
+| Euler equations | $1/\\rho$ |
+| FHN system | $v^2$ |
+| Brusselator system | $u^2$, $uv$ |
+| Dym equation | $u^3$, $u_{x}^2u$ |
+| Schnakenberg equations | $uv$, $u^2$ |
+| Nonlinear heat equation | $u^3$, $u_xu$, $u^5$ |
+| Polynomial tubular reactor (deg = 3) | $uv$, $v^2$, $v^2u$, $v^3$ |
+| Arrhenius-type tubular reactor | $1/v$, $1/v^2$, $uv$, $uy/v$, $uy/v^2$, $y/v$, $y/v^2$ |
+
 
 
 ## Running Tests
