@@ -37,7 +37,7 @@ pip install -r requirements.txt
 
 ## Usage
 
-For interactive usage examples, go to qupde_usage_examples.ipynb file or [Colab notebook](https://colab.research.google.com/drive/1qbMoZTL0SMJ5tdp8dHXULBjnxvWJjmo_?usp=sharing).
+For interactive usage examples, go to qupde_usage_examples.ipynb file or [Colab notebook](https://colab.research.google.com/drive/1C5gPkOkO14fQwsmXRx91QRsaEFt8nwWl?usp=sharing).
 
 To find a quadratization for the PDE $$u_t = a u^2 * u_x - u_{xxx}$$ (Korteweg-de Vries equation), we first write the differential equation:
 
