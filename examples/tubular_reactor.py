@@ -47,10 +47,8 @@ if __name__ == "__main__":
         ti = time.time()
         quadratize(
             [(psi, psi_t), (theta, theta_t)],
-            diff_ord=2,
-            nvars_bound=7,
-            max_der_order=1,
-            search_alg="bnb",
+            nvars_bound=5,
+            max_der_order=1
         )
         times.append(time.time() - ti)
     avg = statistics.mean(times)
@@ -58,11 +56,9 @@ if __name__ == "__main__":
     
     quadratize(
             [(psi, psi_t), (theta, theta_t)],
-            diff_ord=2,
-            nvars_bound=8,
+            nvars_bound=5,
             max_der_order=1,
-            search_alg="bnb",
-            printing="latex",
+            printing="pprint",
         )
 
     print("Average time", avg)
