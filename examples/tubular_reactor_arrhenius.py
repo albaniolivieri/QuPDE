@@ -26,7 +26,6 @@ D_ct = sp.symbols("D", constant=True)
 beta = sp.symbols("beta", constant=True)
 theta_ref = sp.symbols("theta_ref", constant=True)
 gamma = sp.symbols("gamma", constant=True)
-# mu = sp.symbols("mu", constant=True)
 
 psi_t = (
     (1 / Pe) * D(psi, s, 2)
@@ -44,26 +43,22 @@ y_t = gamma/theta**2 * y * theta_t
 # we run QuPDE for the tubular reactor model
 if __name__ == "__main__":
     times = []
-    for i in range(3):
+    for i in range(5):
         ti = time.time()
         quadratize(
             [(psi, psi_t), (theta, theta_t), (y, y_t)],
-            diff_ord=2,
             nvars_bound=7,
-            max_der_order=3,
-            search_alg="bnb",
+            max_der_order=0
         )
         times.append(time.time() - ti)
 
     avg = statistics.mean(times[1:])
     std = statistics.stdev(times[1:])
-    
+    print(time.time())
     quadratize(
         [(psi, psi_t), (theta, theta_t), (y, y_t)],
-        diff_ord=2,
         nvars_bound=7,
-        max_der_order=3,
-        search_alg="bnb",
+        max_der_order=0,
         printing="pprint",
     )
     

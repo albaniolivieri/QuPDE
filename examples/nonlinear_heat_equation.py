@@ -21,17 +21,17 @@ u = sp.Function('u')(t,x)
 p=6
 u_t = D(u, x, 2) + u ** p
 
-# we run QuPDE for the Allen-Cahn equation
+# we run QuPDE for the nonlinear heat equation
 if __name__ == '__main__':
     times = []
     for i in range(10):
         ti = time.time()
-        quadratize([(u, u_t)], diff_ord=3, search_alg='bnb', max_der_order=2)
+        quadratize([(u, u_t)], max_der_order=0)
         times.append(time.time() - ti) 
     avg=statistics.mean(times[1:])
     std=statistics.stdev(times[1:])
 
-    quadratize([(u, u_t)], diff_ord=3, search_alg='bnb', max_der_order=2, printing='pprint')
+    quadratize([(u, u_t)], max_der_order=0, printing='pprint')
 
     print('Average time', avg)
     print('Standard deviation', std)
