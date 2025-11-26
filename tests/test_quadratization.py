@@ -7,16 +7,17 @@ from sympy import Derivative as D
 sys.path.append("..")
 
 from qupde import quadratize
-from qupde.utils import get_order
+from qupde.utils import get_sys_order
 from qupde.quadratization import check_quadratization
 from qupde.pde_sys import PDESys
 
 class TestCase():
     
-    def __init__(self, func_eq, n_diff, max_der_order=None) -> None:
+    def __init__(self, func_eq, n_diff, max_der_order=None, nvars_bound = 10) -> None:
         self.func_eq = func_eq
         self.n_diff = n_diff
         self.max_der_order = max_der_order
+        self.n_vars_bound = nvars_bound
         
 class TestQuadratization(unittest.TestCase):
     """
@@ -92,10 +93,15 @@ class TestQuadratization(unittest.TestCase):
         # u_t = -u_xx/u - u**2 - u + 5
         # v_t = u/v - v + 5
         self.test_cases_rat.append(TestCase([(self.u,  -D(self.u, self.x, 2) / self.u - self.u**2 - self.u + 5), 
-                                             (self.v, self.u / self.v - self.v + 5)], 2, max_der_order=10))
+                                             (self.v, self.u / self.v - self.v + 5)], 2, max_der_order=10, nvars_bound=6))
 
-        # u_t = 1/((u+1)(u-1))
-        self.test_cases_rat.append(TestCase([(self.u, 1 / ((self.u+1)*(self.u+2)))], 1, max_der_order=1))
+        # u_t = 1/((u+1)(u+2))
+        self.test_cases_rat.append(TestCase([(self.u, 1 / ((self.u+1)*(self.u+2)))], 0, max_der_order=1))
+        
+        # u_t = 1/((v+1)(u+1))
+        # v_t = 1/u
+        self.test_cases_rat.append(TestCase([(self.u, 1 / ((self.v+1)*(self.u+1))), 
+                                             (self.v, 1 / self.u)], 0, max_der_order=1))
         
         self.test_cases_coeff_sym = []
         
@@ -131,12 +137,12 @@ class TestQuadratization(unittest.TestCase):
         vars_prop, frac_vars = new_vars
         quad_vars = []
         for i in range(len(vars_prop)):
-            var_ord = n_diff - get_order([vars_prop[i]]) 
+            var_ord = n_diff - get_sys_order([vars_prop[i]]) 
             if var_ord<0: var_ord = 0
             quad_vars.extend([(symbols(f'w_{i}{self.x}{j}'), D(vars_prop[i], self.x, j).doit())
                             for j in range(1, var_ord + 1)] + [(symbols(f'w_{i}'), vars_prop[i])])
         for i in range(len(frac_vars)):
-            var_ord = n_diff - get_order([frac_vars[i]])
+            var_ord = n_diff - get_sys_order([frac_vars[i]])
             if var_ord<0: var_ord = 0
             quad_vars.extend([(symbols(f'q_{i}{self.x}{j}'), D(frac_vars[i], self.x, j).doit())
                             for j in range(1, var_ord + 1)])
@@ -146,7 +152,7 @@ class TestQuadratization(unittest.TestCase):
         """
         Rewrite the expressions with the new variables definitions. 
         """
-        max_order = get_order(list(zip(*test_case.func_eq))[1])
+        max_order = get_sys_order(list(zip(*test_case.func_eq))[1])
         refac = []
         for fun, _ in test_case.func_eq:
             refac += [(symbols(f'{fun.name}_{self.x}{i}'), D(fun, self.x, i))
@@ -185,12 +191,12 @@ class TestQuadratization(unittest.TestCase):
         for test in test_cases:
             print('\nTest case: ')
             [print(f'Derivative({eq[0]}, t)', '=', eq[1]) for eq in test.func_eq]
-            poly_syst = quadratize(test.func_eq, test.n_diff, sort_fun=sort_heur, search_alg=search_alg, max_der_order=test.max_der_order)
+            poly_syst = quadratize(test.func_eq, test.n_diff, sort_fun=sort_heur, 
+                                   search_alg=search_alg, max_der_order=test.max_der_order, nvars_bound=test.n_vars_bound)
             self.assertIsInstance(poly_syst, PDESys, f'Quadratization not found for {test.func_eq}')
             quad_prop, frac_vars = poly_syst.get_aux_vars()
-            # self.assertTrue(quad_prop or frac_vars, f'Quadratization not found for {test.func_eq}')
             print(f'Quadratization: {quad_prop}')
-            print(f'Fractional variables: {frac_vars}')
+            print(f'Rational variables: {frac_vars}')
             
             quad_prop_expr, frac_vars_expr = self.transform_new_vars(quad_prop, frac_vars)
             new_vars, frac_vars, refac = self.rewrite_expr(test, quad_prop_expr, frac_vars_expr)

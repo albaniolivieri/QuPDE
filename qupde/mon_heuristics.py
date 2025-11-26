@@ -1,5 +1,5 @@
 from sympy.polys.rings import PolyElement
-from .utils import get_diff_order
+from .utils import get_pol_diff_order
 
 def by_degree_order(vars_tup: tuple[PolyElement, PolyElement]) -> tuple[int, int]:
     """Function to sort the variables by the sum of their degrees and the
@@ -19,10 +19,10 @@ def by_degree_order(vars_tup: tuple[PolyElement, PolyElement]) -> tuple[int, int
     if len(vars_tup) > 1:
         deg, order = (
             max([sum(vars_tup[0].degrees()), sum(vars_tup[1].degrees())]),
-            max([get_diff_order(vars_tup[0]), get_diff_order(vars_tup[1])]),
+            max([get_pol_diff_order(vars_tup[0]), get_pol_diff_order(vars_tup[1])]),
         )
     else:
-        deg, order = (sum(vars_tup[0].degrees()), get_diff_order(vars_tup[0]))
+        deg, order = (sum(vars_tup[0].degrees()), get_pol_diff_order(vars_tup[0]))
     return (deg, order)
 
 
@@ -44,11 +44,11 @@ def by_order_degree(vars_tup: tuple[PolyElement, PolyElement]) -> tuple[int, int
     deg, order = 0, 0
     if len(vars_tup) > 1:
         order, deg = (
-            max([get_diff_order(vars_tup[0]), get_diff_order(vars_tup[1])]),
+            max([get_pol_diff_order(vars_tup[0]), get_pol_diff_order(vars_tup[1])]),
             max([sum(vars_tup[0].degrees()), sum(vars_tup[1].degrees())]),
         )
     else:
-        order, deg = (get_diff_order(vars_tup[0]), sum(vars_tup[0].degrees()))
+        order, deg = (get_pol_diff_order(vars_tup[0]), sum(vars_tup[0].degrees()))
     return (order, deg)
 
 
@@ -67,10 +67,10 @@ def by_fun(vars_tup: tuple[PolyElement, PolyElement]) -> int:
     """
     if len(vars_tup) > 1:
         return max([sum(vars_tup[0].degrees()), sum(vars_tup[1].degrees())]) + 2 * max(
-            [get_diff_order(vars_tup[0]), get_diff_order(vars_tup[1])]
+            [get_pol_diff_order(vars_tup[0]), get_pol_diff_order(vars_tup[1])]
         )
     else:
-        return sum(vars_tup[0].degrees()) + 2 * get_diff_order(vars_tup[0])
+        return sum(vars_tup[0].degrees()) + 2 * get_pol_diff_order(vars_tup[0])
 
 
 def by_fun2(vars_tup: tuple[PolyElement, PolyElement]) -> int:
@@ -89,7 +89,7 @@ def by_fun2(vars_tup: tuple[PolyElement, PolyElement]) -> int:
     """
     if len(vars_tup) > 1:
         return sum([sum(vars_tup[0].degrees()), sum(vars_tup[1].degrees())]) + 4 * sum(
-            [get_diff_order(vars_tup[0]), get_diff_order(vars_tup[1])]
+            [get_pol_diff_order(vars_tup[0]), get_pol_diff_order(vars_tup[1])]
         )
     else:
-        return sum(vars_tup[0].degrees()) + 4 * get_diff_order(vars_tup[0])
+        return sum(vars_tup[0].degrees()) + 4 * get_pol_diff_order(vars_tup[0])

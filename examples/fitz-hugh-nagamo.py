@@ -28,12 +28,12 @@ if __name__ == '__main__':
     times= []
     for i in range(10):
         ti = time.time()
-        quadratize([(v, v_t), (y, y_t)])
+        quadratize([(v, v_t), (y, y_t)], diff_ord=2)
         times.append(time.time() - ti) 
     avg = statistics.mean(times[1:])
     std = statistics.stdev(times[1:])
 
-    quadratize([(v, v_t), (y, y_t)], printing='pprint')
+    quadratize([(v, v_t), (y, y_t)], diff_ord=2, printing='pprint')
 
     print('Average time', avg)
     print('Standard deviation', std)

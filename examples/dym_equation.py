@@ -31,7 +31,7 @@ if __name__ == '__main__':
     avg = statistics.mean(times[1:])
     std = statistics.stdev(times[1:])
     
-    quadratize([(u, u_t)], diff_ord=4, max_der_order=1, printing='pprint', show_nodes=True)
+    quadratize([(u, u_t)], diff_ord=4, max_der_order=1, printing='pprint')
     
     print('Average time', avg)
     print('Standard deviation', std)

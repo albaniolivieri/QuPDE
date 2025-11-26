@@ -114,5 +114,4 @@ def is_linear_combination(
         der_tuple = reduction_sparse(der_tuple, V2[i])
         if der_tuple[1] == 0:
             return (True, -der_tuple[0])
-    # print('der_tuple[0]', der_tuple[0])
     return (False, der_tuple[1])

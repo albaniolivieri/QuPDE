@@ -5,7 +5,7 @@ from queue import PriorityQueue
 from collections import deque
 from itertools import chain, combinations
 from sympy.polys.rings import PolyElement
-from .utils import get_diff_order
+from .utils import get_pol_diff_order
 from .pde_sys import PDESys
 
 
@@ -30,26 +30,6 @@ def pruning_rule_nvars(nvars: int, global_nvars: int) -> bool:
     return False
 
 
-def pruning_rule_time(start_time: float, max_time: float) -> bool:
-    """Pruning rule based on the time elapsed.
-
-    Parameters
-    ----------
-    start_time
-        The time when the algorithm started
-    max_time
-        The maximum time allowed
-
-    Returns
-    -------
-    bool
-        True if the time elapsed is greater than the maximum time allowed, False otherwise
-    """
-    if time.time() - start_time > max_time:
-        return True
-    return False
-
-
 def pruning_rule_order(new_vars: list[PolyElement], max_order: int, pde_sys) -> bool:
     """Pruning rule based on the maximum order of derivatives allowed.
 
@@ -67,9 +47,10 @@ def pruning_rule_order(new_vars: list[PolyElement], max_order: int, pde_sys) -> 
         than the maximum order allowed, False otherwise
     """
     for var in new_vars:
-        if (get_diff_order(var) > max_order) or ((pde_sys.order - get_diff_order(var)) < 0):
+        if (get_pol_diff_order(var) > max_order) or ((pde_sys.order - get_pol_diff_order(var)) < 0):
             return True
     return False
+
 
 def shrink_quad(quad_vars: list[PolyElement], poly_syst: PDESys) -> list[PolyElement]:
     """Checks if the quadratization can be shrunk to a smaller set of variables.
@@ -87,13 +68,15 @@ def shrink_quad(quad_vars: list[PolyElement], poly_syst: PDESys) -> list[PolyEle
         a list with a quadratization of an equal or lesser order than the original
     """
     final_vars = quad_vars
-    subsets = chain.from_iterable(combinations(quad_vars, r) for r in range(1, len(quad_vars)))
+    subsets = chain.from_iterable(combinations(quad_vars, r)
+                                  for r in range(1, len(quad_vars)))
     for var_group in subsets:
         poly_syst.set_new_vars(var_group)
         res, _ = poly_syst.try_make_quadratic()
         if res:
             return list(var_group)
     return final_vars
+
 
 def bnb(
     new_vars: list[PolyElement],
@@ -127,7 +110,7 @@ def bnb(
         return None, math.inf, 1
 
     if max_der_order == None:
-        if pruning_rule_order(new_vars, poly_syst.get_max_order(), poly_syst):
+        if pruning_rule_order(new_vars, 3*poly_syst.get_max_order(), poly_syst):
             return None, math.inf, 1
     else:
         if pruning_rule_order(new_vars, max_der_order, poly_syst):
@@ -150,7 +133,8 @@ def bnb(
 
     for p_vars in prop_vars:
         quad_vars, nvars, traversed = bnb(
-            new_vars + list(p_vars), min_nvars, poly_syst, sort_fun, max_der_order
+            new_vars +
+            list(p_vars), min_nvars, poly_syst, sort_fun, max_der_order
         )
         traversed_total += traversed
         if nvars < min_nvars:
@@ -158,6 +142,7 @@ def bnb(
             best_quad_vars = quad_vars
 
     return best_quad_vars, min_nvars, traversed_total
+
 
 def nearest_neighbor(
     poly_syst: PDESys, sort_fun: Callable, new_vars: Optional[list[PolyElement]] = []

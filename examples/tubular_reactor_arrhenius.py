@@ -47,6 +47,7 @@ if __name__ == "__main__":
         ti = time.time()
         quadratize(
             [(psi, psi_t), (theta, theta_t), (y, y_t)],
+            diff_ord=2,
             nvars_bound=7,
             max_der_order=0
         )
@@ -54,9 +55,9 @@ if __name__ == "__main__":
 
     avg = statistics.mean(times[1:])
     std = statistics.stdev(times[1:])
-    print(time.time())
     quadratize(
         [(psi, psi_t), (theta, theta_t), (y, y_t)],
+        diff_ord=2,
         nvars_bound=7,
         max_der_order=0,
         printing="pprint",

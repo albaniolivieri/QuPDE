@@ -4,7 +4,7 @@ from sympy.polys.rings import PolyElement
 from .pde_sys import PDESys
 from .search_quad import bnb, nearest_neighbor
 from .mon_heuristics import by_fun, by_degree_order, by_order_degree
-from .utils import get_order
+from .utils import get_sys_order
 
 def quadratize(
     func_eq: list[tuple[sp.Function, sp.Expr]],
@@ -53,7 +53,7 @@ def quadratize(
     ].pop()
     
     if diff_ord == None:
-        diff_ord = get_order([expr for _, expr in func_eq])
+        diff_ord = 3*get_sys_order([expr for _, expr in func_eq])
     
     poly_syst = PDESys(func_eq, diff_ord, (first_indep, x_var))
     quad = []
@@ -86,6 +86,7 @@ def quadratize(
         print_quad(poly_syst, p_style=printing)
         
     if show_nodes: 
+        print('Nodes traversed:', nodes)
         return poly_syst, nodes
         
     return poly_syst

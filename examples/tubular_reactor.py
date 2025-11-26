@@ -47,6 +47,7 @@ if __name__ == "__main__":
         ti = time.time()
         quadratize(
             [(psi, psi_t), (theta, theta_t)],
+            diff_ord=2,
             nvars_bound=5,
             max_der_order=1
         )
@@ -56,6 +57,7 @@ if __name__ == "__main__":
     
     quadratize(
             [(psi, psi_t), (theta, theta_t)],
+            diff_ord=2,
             nvars_bound=5,
             max_der_order=1,
             printing="pprint",
