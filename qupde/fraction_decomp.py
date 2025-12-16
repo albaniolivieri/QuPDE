@@ -178,7 +178,6 @@ class FractionDecomp:
             deriv_den = den**2
             deriv_var = deriv_var**2
             
-        # return den.ring(deriv_num * deriv_var)
         return den.ring(self.try_reduce(deriv_num * deriv_var))
 
     def try_reduce(self, poly: PolyElement) -> PolyElement:

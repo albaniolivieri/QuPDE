@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "QuPDE"
+name = "qupde"
 version = "1.0.0"
 description = "Python library that finds an optimal and monomial quadratic transformation (quadratization) for nonquadratic PDEs."
 authors = [
@@ -14,7 +14,7 @@ readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.8"
 dependencies = [
-    "sympy"
+    "sympy>=1.5.0"
 ]
 
 [project.optional-dependencies]
@@ -23,4 +23,4 @@ dev = ["unittest"]
 [project.urls]
 "Homepage" = "https://github.com/albaniolivieri/QuPDE"
 "Issue Tracker" = "https://github.com/albaniolivieri/QuPDE/issues"
-"Source" = "https://github.com/albaniolivieri/QuPDE"
+"Repository" = "https://github.com/albaniolivieri/QuPDE"

@@ -1,10 +1,9 @@
 import sympy as sp
 from sympy import Derivative as D
-import sys
 import time
 import statistics
-sys.path.append("..")
 from qupde import quadratize
+
 
 """
 The HUX (Heliospheric Upwinding eXtrapolation) model is a two-dimensional time-stationary 
@@ -20,18 +19,18 @@ r, phi = sp.symbols('r phi')
 omega = sp.symbols('omega', constant=True)
 v = sp.Function('v')(r,phi)
 
-v_r = (omega*D(v, phi)) / v
+v_r = (omega * D(v, phi)) / v
 
 if __name__ == '__main__':
     times = []
     for i in range(10):
         ti = time.time()
-        quadratize([(v, v_r)], first_indep=r, search_alg="bnb")
+        quadratize([(v, v_r)], diff_ord=1, first_indep=r)
         times.append(time.time() - ti) 
     avg = statistics.mean(times[1:])
     std = statistics.stdev(times[1:])
-
-    quadratize([(v, v_r)], first_indep=r, search_alg='bnb', printing='pprint')
+    
+    quadratize([(v, v_r)], diff_ord=1, first_indep=r, printing='pprint')
     
     print('Average time', avg)
     print('Standard deviation', std)

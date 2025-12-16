@@ -2,8 +2,6 @@ import sympy as sp
 from sympy import Derivative as D
 import time
 import statistics
-import sys
-sys.path.append("..")
 from qupde import quadratize
 
 
@@ -20,19 +18,19 @@ References:
 t, x = sp.symbols('t x')
 u = sp.Function('u')(t,x)
 
-u_t = D(u, x, 2) + u - u**3 
+u_t = D(u, x, 2) + u - u**3
 
 # we run QuPDE for the Allen-Cahn equation
 if __name__ == '__main__':
     times= []
     for i in range(10):
         ti = time.time()
-        quadratize([(u, u_t)])
+        quadratize([(u, u_t)], diff_ord=2)
         times.append(time.time() - ti) 
     avg = statistics.mean(times[1:])
     std = statistics.stdev(times[1:])
     
-    quadratize([(u, u_t)], printing='pprint')
+    quadratize([(u, u_t)], diff_ord=2, printing='pprint')
 
     print('Average time', avg)
     print('Standard deviation', std)

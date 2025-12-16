@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Optional, Callable, TYPE_CHECKING
+import re
 from functools import reduce
 import sympy as sp
 from sympy import Derivative as D
@@ -10,7 +11,7 @@ if TYPE_CHECKING:
     from .fraction_decomp import FractionDecomp
 
 
-def get_order(set_derivs: list[sp.Symbol]) -> int:
+def get_sys_order(set_derivs: list[sp.Symbol]) -> int:
     """Gets the maximum order of derivatives in a list of derivatives
 
     Parameters
@@ -155,6 +156,7 @@ def sort_vars(var_list: list[PolyElement], fun: Callable) -> list[PolyElement]:
     sorted_list = sorted(var_list, key=fun)
     return sorted_list
 
+
 def remove_vars(list_vars: list[PolyElement], accum_vars: list[PolyElement]) -> list[PolyElement]: 
     """Removes variables if they are already proposed in the quadratization or if they are of degree less than two
 
@@ -181,43 +183,15 @@ def remove_vars(list_vars: list[PolyElement], accum_vars: list[PolyElement]) -> 
     return list_vars
         
 
-
-def powerset(iterable: list[PolyElement]) -> list[PolyElement]:
-    """Returns the powerset of a set
-
-    Parameters
-    ----------
-    iterable
-        Set to get the powerset from
-
-    Returns
-    -------
-    list[PolyElement]
-        the powerset of the set
+def get_pol_diff_order(pol: PolyElement) -> int:
     """
-    s = list(iterable)
-    return chain.from_iterable(combinations(s, r) for r in range(1, len(s)))
-
-
-def get_diff_order(pol: PolyElement) -> int:
-    """Returns the order of the highest derivative in a polynomial
-
-    Parameters
-    ----------
-    pol
-        Polynomial to check
-
-    Returns
-    -------
-    int
-        the order of the highest derivative in the polynomial
     """
+    pattern = r"^[A-Za-z0-9]+_(?:[A-Za-z][0-9]+|[0-9]+[A-Za-z][0-9]+)$"
     derivs = [x for x in pol.ring.gens if pol.diff(x) != 0]
-    order = 0
+    order = 0 
     for var in derivs:
-        if str(var)[-1].isnumeric():
-            order += int(str(var)[-1])
+        if bool(re.match(pattern, str(var))):
+            diff_order = int(str(var)[-1])
+            if diff_order > order:
+                order = diff_order
     return order
-
-def get_diff_order_pol(pol) -> int: 
-    print([der.args[1][1] for der in pol.atoms(D)])

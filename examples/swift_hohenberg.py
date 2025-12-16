@@ -1,9 +1,7 @@
 import sympy as sp
 from sympy import Derivative as D
-import sys
 import time
 import statistics
-sys.path.append("..")
 from qupde.quadratization import quadratize
 
 """
@@ -17,7 +15,7 @@ t, x = sp.symbols('t x')
 u = sp.Function('u')(t,x)
 r, qc, v, g = sp.symbols('r qc v g', constant=True)
 
-u_t = r * u - D(u, (x, 2))**2*u - 2 * qc**2 * D(u, (x, 2))**2 * u - qc**4*u + v * u**2 - g * u**3 
+u_t = r * u - D(u, (x, 2))**2 * u - 2 * qc**2 * D(u, (x, 2))**2 * u - qc**4 * u + v * u**2 - g * u**3 
 
 # we run QuPDE for the Swift-Hohenberg equation
 if __name__ == '__main__':

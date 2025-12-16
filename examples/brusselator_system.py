@@ -1,9 +1,7 @@
 import sympy as sp
 from sympy import Derivative as D
-import sys
 import time
 import statistics
-sys.path.append("..")
 from qupde import quadratize
 
 """
@@ -28,12 +26,12 @@ if __name__ == '__main__':
     times= []
     for i in range(10):
         ti = time.time()
-        quadratize([(u, u_t), (v, v_t)])
+        quadratize([(u, u_t), (v, v_t)], diff_ord=1)
         times.append(time.time() - ti) 
     avg=statistics.mean(times[1:])
     std=statistics.stdev(times[1:])
 
-    quadratize([(u, u_t), (v, v_t)], printing='pprint')
+    quadratize([(u, u_t), (v, v_t)], diff_ord=1, printing='pprint')
     
     print('Average time', avg)
     print('Standard deviation', std)
