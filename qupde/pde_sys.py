@@ -12,7 +12,6 @@ from .utils import (
     get_pol_diff_order,
 )
 from .fraction_decomp import FractionDecomp
-from .mon_heuristics import *
 
 
 class PDESys:
