@@ -157,7 +157,9 @@ def sort_vars(var_list: list[PolyElement], fun: Callable) -> list[PolyElement]:
     return sorted_list
 
 
-def remove_vars(list_vars: list[PolyElement], accum_vars: list[PolyElement]) -> list[PolyElement]: 
+def remove_vars(
+    list_vars: list[PolyElement], accum_vars: list[PolyElement]
+) -> list[PolyElement]:
     """Removes variables if they are already proposed in the quadratization or if they are of degree less than two
 
     Parameters
@@ -171,24 +173,27 @@ def remove_vars(list_vars: list[PolyElement], accum_vars: list[PolyElement]) -> 
     -------
     list[tuple]
         the filtered list of variables
-    """    
+    """
     for i in range(len(list_vars)):
         tup_list = list(list_vars[i])
         new_tup = list(tup_list)
         if tup_list[0] in accum_vars or sum(tup_list[0].degrees()) <= 1:
             new_tup.remove(tup_list[0])
-        if tup_list[1] in accum_vars or sum(tup_list[1].degrees()) <= 1 or tup_list[0] == tup_list[1]:
+        if (
+            tup_list[1] in accum_vars
+            or sum(tup_list[1].degrees()) <= 1
+            or tup_list[0] == tup_list[1]
+        ):
             new_tup.remove(tup_list[1])
         list_vars[i] = tuple(new_tup)
     return list_vars
-        
+
 
 def get_pol_diff_order(pol: PolyElement) -> int:
-    """
-    """
+    """ """
     pattern = r"^[A-Za-z0-9]+_(?:[A-Za-z][0-9]+|[0-9]+[A-Za-z][0-9]+)$"
     derivs = [x for x in pol.ring.gens if pol.diff(x) != 0]
-    order = 0 
+    order = 0
     for var in derivs:
         if bool(re.match(pattern, str(var))):
             diff_order = int(str(var)[-1])

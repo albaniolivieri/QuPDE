@@ -14,25 +14,27 @@ References:
     709–743. https://doi.org/10.1007/s00285-014-0779-6
 """
 
-t, x = sp.symbols('t x')
-a, b, gamma, d_uv, d_vu, d_u, d_v = sp.symbols('a b gamma d_uv d_vu d_u d_v', constant=True)
-v = sp.Function('v')(t,x)
-u = sp.Function('u')(t,x)
+t, x = sp.symbols("t x")
+a, b, gamma, d_uv, d_vu, d_u, d_v = sp.symbols(
+    "a b gamma d_uv d_vu d_u d_v", constant=True
+)
+v = sp.Function("v")(t, x)
+u = sp.Function("u")(t, x)
 
 u_t = d_u * D(u, x, 2) + d_uv * D(v, x, 2) + gamma * (a - u + u**2 * v)
 v_t = d_v * D(v, x, 2) + d_vu * D(u, x, 2) + gamma * (b - u**2 * v)
 
 # we run QuPDE for the Schnakenberg equations
-if __name__ == '__main__':
-    times= []
+if __name__ == "__main__":
+    times = []
     for i in range(10):
         ti = time.time()
         quadratize([(u, u_t), (v, v_t)], diff_ord=2)
-        times.append(time.time() - ti) 
+        times.append(time.time() - ti)
     avg = statistics.mean(times[1:])
     std = statistics.stdev(times[1:])
 
-    quadratize([(u, u_t), (v, v_t)], diff_ord=2, printing='pprint')
+    quadratize([(u, u_t), (v, v_t)], diff_ord=2, printing="pprint")
 
-    print('Average time', avg)
-    print('Standard deviation', std)
+    print("Average time", avg)
+    print("Standard deviation", std)

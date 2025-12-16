@@ -15,22 +15,22 @@ References:
     https://doi.org/10.1016/j.jcp.2022.111689
 """
 
-r, phi = sp.symbols('r phi')
-omega = sp.symbols('omega', constant=True)
-v = sp.Function('v')(r,phi)
+r, phi = sp.symbols("r phi")
+omega = sp.symbols("omega", constant=True)
+v = sp.Function("v")(r, phi)
 
 v_r = (omega * D(v, phi)) / v
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     times = []
     for i in range(10):
         ti = time.time()
         quadratize([(v, v_r)], diff_ord=1, first_indep=r)
-        times.append(time.time() - ti) 
+        times.append(time.time() - ti)
     avg = statistics.mean(times[1:])
     std = statistics.stdev(times[1:])
-    
-    quadratize([(v, v_r)], diff_ord=1, first_indep=r, printing='pprint')
-    
-    print('Average time', avg)
-    print('Standard deviation', std)
+
+    quadratize([(v, v_r)], diff_ord=1, first_indep=r, printing="pprint")
+
+    print("Average time", avg)
+    print("Standard deviation", std)

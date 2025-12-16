@@ -1,6 +1,7 @@
 from sympy.polys.rings import PolyElement
 from .utils import get_pol_diff_order
 
+
 def by_degree_order(vars_tup: tuple[PolyElement, PolyElement]) -> tuple[int, int]:
     """Function to sort the variables by the sum of their degrees and the
     maximum order of differentiation
@@ -66,7 +67,9 @@ def by_fun(vars_tup: tuple[PolyElement, PolyElement]) -> int:
         sorting criteria given by the value of the function degree + 2 * order
     """
     if len(vars_tup) > 1:
-        return max([sum(vars_tup[0].degrees()), sum(vars_tup[1].degrees())]) + 2 * max([get_pol_diff_order(vars_tup[0]), get_pol_diff_order(vars_tup[1])])
+        return max([sum(vars_tup[0].degrees()), sum(vars_tup[1].degrees())]) + 2 * max(
+            [get_pol_diff_order(vars_tup[0]), get_pol_diff_order(vars_tup[1])]
+        )
     else:
         return sum(vars_tup[0].degrees()) + 2 * get_pol_diff_order(vars_tup[0])
 
@@ -86,6 +89,8 @@ def by_fun2(vars_tup: tuple[PolyElement, PolyElement]) -> int:
         sorting criteria given by the value of the function degree + 4 * order
     """
     if len(vars_tup) > 1:
-        return sum([sum(vars_tup[0].degrees()), sum(vars_tup[1].degrees())]) + 4 * sum([get_pol_diff_order(vars_tup[0]), get_pol_diff_order(vars_tup[1])])
+        return sum([sum(vars_tup[0].degrees()), sum(vars_tup[1].degrees())]) + 4 * sum(
+            [get_pol_diff_order(vars_tup[0]), get_pol_diff_order(vars_tup[1])]
+        )
     else:
         return sum(vars_tup[0].degrees()) + 4 * get_pol_diff_order(vars_tup[0])

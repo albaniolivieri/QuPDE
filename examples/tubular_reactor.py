@@ -22,15 +22,13 @@ B = sp.symbols("B", constant=True)
 D_ct = sp.symbols("D", constant=True)
 beta = sp.symbols("beta", constant=True)
 theta_ref = sp.symbols("theta_ref", constant=True)
-c_0, c_1, c_2, c_3, c_4, c_5, c_6 = sp.symbols("c_0 c_1 c_2 c_3 c_4 c_5 c_6", constant=True)
-
-f = (c_3 * theta**3 + c_2 * theta**2 + c_1 * theta + c_0)
-
-psi_t = (
-    (1 / Pe) * D(psi, s, 2)
-    - D(psi, s)
-    - D_ct * psi * f
+c_0, c_1, c_2, c_3, c_4, c_5, c_6 = sp.symbols(
+    "c_0 c_1 c_2 c_3 c_4 c_5 c_6", constant=True
 )
+
+f = c_3 * theta**3 + c_2 * theta**2 + c_1 * theta + c_0
+
+psi_t = (1 / Pe) * D(psi, s, 2) - D(psi, s) - D_ct * psi * f
 theta_t = (
     (1 / Pe) * D(theta, s, 2)
     - D(theta, s)
@@ -44,26 +42,19 @@ if __name__ == "__main__":
     for i in range(10):
         ti = time.time()
         quadratize(
-            [(psi, psi_t), (theta, theta_t)],
-            diff_ord=2,
-            nvars_bound=5,
-            max_der_order=1
+            [(psi, psi_t), (theta, theta_t)], diff_ord=2, nvars_bound=5, max_der_order=1
         )
         times.append(time.time() - ti)
     avg = statistics.mean(times)
     std = statistics.stdev(times)
-    
+
     quadratize(
-            [(psi, psi_t), (theta, theta_t)],
-            diff_ord=2,
-            nvars_bound=5,
-            max_der_order=1,
-            printing="pprint",
-        )
+        [(psi, psi_t), (theta, theta_t)],
+        diff_ord=2,
+        nvars_bound=5,
+        max_der_order=1,
+        printing="pprint",
+    )
 
     print("Average time", avg)
     print("Standard deviation", std)
-
-    
-
-
