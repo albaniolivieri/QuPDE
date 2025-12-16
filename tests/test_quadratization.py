@@ -19,7 +19,7 @@ class TestCase:
 
 class TestQuadratization(unittest.TestCase):
     """
-    Test cases for the PDEs quadratization algorithm.
+    Test cases for the PDE quadratization algorithm.
     """
 
     def setUp(self):

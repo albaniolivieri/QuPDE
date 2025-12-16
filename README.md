@@ -39,8 +39,8 @@ cd pde-quad
 # macOS / Linux (installer script)
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# or with pipx
-pipx install uv
+# or with pip
+pip install uv
 ```
 
 3. Using `uv` (recommended):
