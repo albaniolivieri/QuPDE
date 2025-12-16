@@ -2,8 +2,6 @@ import sympy as sp
 from sympy import Derivative as D
 import time
 import statistics
-import sys
-sys.path.append("..")
 from qupde import quadratize
 
 """
@@ -20,7 +18,7 @@ v = sp.Function('v')(t,x)
 y = sp.Function('y')(t,x)
 epsilon, h, gamma, r = sp.symbols('epsilon h gamma r', constant=True)
 
-v_t = epsilon * D(v, x, 2) - (1/epsilon) * (v * (v - 0.1) * (1 - v)) - y/epsilon + r/epsilon
+v_t = epsilon * D(v, x, 2) - (1 / epsilon) * (v * (v - 0.1) * (1 - v)) - y / epsilon + r / epsilon
 y_t = h * v - gamma * y + r
 
 # we run QuPDE for the FitzHugh-Nagumo system

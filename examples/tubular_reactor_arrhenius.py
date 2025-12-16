@@ -2,8 +2,6 @@ import sympy as sp
 from sympy import Derivative as D
 import time
 import statistics
-import sys
-sys.path.append("..")
 from qupde import quadratize
 
 """
@@ -38,7 +36,7 @@ theta_t = (
     - beta * (theta - theta_ref)
     + B * D_ct * psi * y
 )
-y_t = gamma/theta**2 * y * theta_t
+y_t = gamma / theta**2 * y * theta_t
 
 # we run QuPDE for the tubular reactor model
 if __name__ == "__main__":

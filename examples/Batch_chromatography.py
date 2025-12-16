@@ -1,9 +1,5 @@
 import sympy as sp
 from sympy import Derivative as D
-import time
-import statistics
-import sys
-sys.path.append("..")
 from qupde import quadratize
 from qupde.mon_heuristics import *
 

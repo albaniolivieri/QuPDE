@@ -1,10 +1,7 @@
 import unittest
-import sys
 import math
 from sympy import symbols, simplify, expand, nsimplify, Function
 from sympy import Derivative as D
-
-sys.path.append("..")
 
 from qupde import quadratize
 from qupde.utils import get_sys_order
@@ -65,12 +62,12 @@ class TestQuadratization(unittest.TestCase):
                                             4))
         
         # ut = 7.15666*D(u, x)/u - 5.677*D(u, x)
-        self.test_cases_rat.append(TestCase([(self.u, 7.15666*D(self.u, self.x) / self.u + 5.677*D(self.u, self.x))], 1))
+        self.test_cases_rat.append(TestCase([(self.u, 7.15666 * D(self.u, self.x) / self.u + 5.677 * D(self.u, self.x))], 1))
         
         # u_t = u_xx * u**2 + 2
         # v_t = v_xx/u**3 + u
         self.test_cases_rat.append(TestCase([(self.u, self.u**2 * D(self.u, self.x, 2) + 2), 
-                                             (self.v, D(self.v, self.x, 2)/self.u**3 + self.u)], 2, 10))
+                                             (self.v, D(self.v, self.x, 2) / self.u**3 + self.u)], 2, 10))
         
         # u_t = 1/(5 * (u + 1))
         self.test_cases_rat.append(TestCase([(self.u, 1 / (5 * (self.u + 1)))], 1))
@@ -96,11 +93,11 @@ class TestQuadratization(unittest.TestCase):
                                              (self.v, self.u / self.v - self.v + 5)], 2, max_der_order=10, nvars_bound=6))
 
         # u_t = 1/((u+1)(u+2))
-        self.test_cases_rat.append(TestCase([(self.u, 1 / ((self.u+1)*(self.u+2)))], 0, max_der_order=1))
+        self.test_cases_rat.append(TestCase([(self.u, 1 / ((self.u + 1)*(self.u + 2)))], 0, max_der_order=1))
         
         # u_t = 1/((v+1)(u+1))
         # v_t = 1/u
-        self.test_cases_rat.append(TestCase([(self.u, 1 / ((self.v+1)*(self.u+1))), 
+        self.test_cases_rat.append(TestCase([(self.u, 1 / ((self.v + 1)*(self.u + 1))), 
                                              (self.v, 1 / self.u)], 0, max_der_order=1))
         
         self.test_cases_coeff_sym = []

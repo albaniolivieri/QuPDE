@@ -2,8 +2,6 @@ import sympy as sp
 from sympy import Derivative as D
 import time
 import statistics
-import sys
-sys.path.append("..")
 from qupde import quadratize
 
 """
@@ -19,7 +17,7 @@ t, x = sp.symbols('t x')
 u = sp.Function('u')(t,x)
 
 p=6
-u_t = D(u, x, 2) + u ** p
+u_t = D(u, x, 2) + u**p
 
 # we run QuPDE for the nonlinear heat equation
 if __name__ == '__main__':

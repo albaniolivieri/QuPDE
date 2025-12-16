@@ -2,8 +2,6 @@ import sympy as sp
 from sympy import Derivative as D
 import time
 import statistics
-import sys
-sys.path.append("..")
 from qupde import quadratize
 
 """
@@ -20,7 +18,7 @@ e_1, e_2, F, k = sp.symbols('epsilon_1 epsilon_2 F k', constant=True)
 v = sp.Function('v')(t,x)
 u = sp.Function('u')(t,x)
 
-u_t = e_1 * D(u, x, 2) - u * v**2 + F*(1 - u)
+u_t = e_1 * D(u, x, 2) - u * v**2 + F * (1 - u)
 v_t = e_2 * D(v, x, 2) + u * v**2 - (F + k) * v
 
 # we run QuPDE for the Gray-Scott equations

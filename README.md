@@ -44,9 +44,9 @@ To find a quadratization for the PDE $$u_t = a u^2 * u_x - u_{xxx}$$ (Korteweg-d
 from sympy import symbols, Function, Derivative
 from qupde import quadratize
 
-t, x = sp.symbols('t x')
-u = sp.Function('u')(t,x)
-a = sp.symbols('a', constant=True)
+t, x = symbols('t x')
+u = Function('u')(t,x)
+a = symbols('a', constant=True)
 
 u_t =  a * u**2 * Derivative(u, x) - Derivative(u, x, 3)
 ```

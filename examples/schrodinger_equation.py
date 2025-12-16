@@ -1,9 +1,7 @@
 import sympy as sp
 from sympy import Derivative as D
 import statistics
-import sys
 import time
-sys.path.append("..")
 from qupde import quadratize
 
 """
@@ -19,7 +17,7 @@ References:
 t, x = sp.symbols('t x')
 u = sp.Function('u')(t,x)
 
-u_t = -0.5*D(u,x,2) + u**3
+u_t = -0.5 * D(u, x, 2) + u**3
 
 # we run QuPDE for the Dym equation
 if __name__ == '__main__':

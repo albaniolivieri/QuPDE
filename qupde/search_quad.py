@@ -109,7 +109,7 @@ def bnb(
     if pruning_rule_nvars(len(new_vars), best_nvars):
         return None, math.inf, 1
 
-    if max_der_order == None:
+    if max_der_order is None:
         if pruning_rule_order(new_vars, 3*poly_syst.get_max_order(), poly_syst):
             return None, math.inf, 1
     else:
@@ -133,8 +133,7 @@ def bnb(
 
     for p_vars in prop_vars:
         quad_vars, nvars, traversed = bnb(
-            new_vars +
-            list(p_vars), min_nvars, poly_syst, sort_fun, max_der_order
+            new_vars + list(p_vars), min_nvars, poly_syst, sort_fun, max_der_order
         )
         traversed_total += traversed
         if nvars < min_nvars:

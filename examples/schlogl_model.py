@@ -2,8 +2,6 @@ import sympy as sp
 from sympy import Derivative as D
 import time
 import statistics
-import sys
-sys.path.append("..")
 from qupde import quadratize
 
 """
@@ -20,7 +18,7 @@ u = sp.Function('u')(t,x)
 v_1, v_2, v_3 = sp.symbols('v_1 v_2 v_3', constant=True)
 k = sp.symbols('k', constant=True)
 
-u_t = D(u, x, 2) - k*(u - v_1)*(u - v_2)*(u - v_3)
+u_t = D(u, x, 2) - k * (u - v_1) * (u - v_2) * (u - v_3)
 
 # we run QuPDE for the Schlögl model
 if __name__ == '__main__':

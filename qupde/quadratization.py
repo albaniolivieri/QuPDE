@@ -52,8 +52,8 @@ def quadratize(
         symbol for symbol in undef_fun[0].free_symbols if symbol != first_indep
     ].pop()
     
-    if diff_ord == None:
-        diff_ord = 3*get_sys_order([expr for _, expr in func_eq])
+    if diff_ord is None:
+        diff_ord = 3 * get_sys_order([expr for _, expr in func_eq])
     
     poly_syst = PDESys(func_eq, diff_ord, (first_indep, x_var))
     quad = []
@@ -72,7 +72,7 @@ def quadratize(
         quad, nodes = nearest_neighbor(poly_syst, sort_fun, new_vars=[])
     elif search_alg == 'bnb':
         quad, _, nodes = bnb([], nvars_bound, poly_syst, sort_fun, max_der_order)
-    if quad == None:
+    if quad is None:
         print("Quadratization not found")
         if show_nodes:
             return [], nodes

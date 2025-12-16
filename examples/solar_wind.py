@@ -1,9 +1,7 @@
 import sympy as sp
 from sympy import Derivative as D
-import sys
 import time
 import statistics
-sys.path.append("..")
 from qupde import quadratize
 
 
@@ -21,7 +19,7 @@ r, phi = sp.symbols('r phi')
 omega = sp.symbols('omega', constant=True)
 v = sp.Function('v')(r,phi)
 
-v_r = (omega*D(v, phi)) / v
+v_r = (omega * D(v, phi)) / v
 
 if __name__ == '__main__':
     times = []

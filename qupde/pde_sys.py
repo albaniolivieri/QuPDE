@@ -1,5 +1,4 @@
 from typing import Optional, Callable
-import time
 import sympy as sp
 from sympy.polys.rings import PolyElement
 from sympy import Derivative as D
@@ -244,7 +243,7 @@ class PDESys:
             for i in range(len(rels)):
                 dic_x[self.poly_vars[count]] = self.frac_decomps.diff_frac(rels[i], dic_x)
                 var_ord = self.order - get_pol_diff_order(rels[i][1])
-                if var_ord < 0: var_ord = 0
+                var_ord = max(var_ord, 0)
                 for j in range(1, var_ord + 1):
                     frac_ders['x_der'].append(
                         (
@@ -257,7 +256,7 @@ class PDESys:
         for k in range(len(func_eq)):
             index_func = (der_order + 1) * k # index of unknown functions
             dic_t[self.poly_vars[index_func]] = self.pde_eq[k][1]
-            for i in range(der_order+1):
+            for i in range(der_order + 1):
                 if i != 0:
                     dic_t[self.poly_vars[i + index_func]] = diff_dict(
                         dic_t[self.poly_vars[(i - 1) + index_func]],
@@ -382,7 +381,7 @@ class PDESys:
             )
         for name, expr in named_new_vars:
             var_ord = self.order - get_pol_diff_order(expr)
-            if var_ord < 0: var_ord = 0
+            var_ord = max(var_ord, 0)
             for i in range(1, var_ord + 1):
                 deriv_x.append(
                     (
@@ -444,12 +443,12 @@ class PDESys:
         """
         list_vars = []
 
-        min_monom = (0,)*len(self.NS_list[0][1].leading_expv())
+        min_monom = (0,) * len(self.NS_list[0][1].leading_expv())
         
         for ns_pol in self.NS_list:
             monoms = [m for m in ns_pol[1].itermonoms() if sum(m) > 2]
         if monoms:
-            min_monom = min(monoms, key=lambda m: sum(m))
+            min_monom = min(monoms, key=sum)
             
         list_vars += get_decompositions(min_monom)
         

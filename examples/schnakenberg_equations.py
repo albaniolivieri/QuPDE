@@ -2,8 +2,6 @@ import sympy as sp
 from sympy import Derivative as D
 import time
 import statistics
-import sys
-sys.path.append("..")
 from qupde import quadratize
 
 """
@@ -21,8 +19,8 @@ a, b, gamma, d_uv, d_vu, d_u, d_v = sp.symbols('a b gamma d_uv d_vu d_u d_v', co
 v = sp.Function('v')(t,x)
 u = sp.Function('u')(t,x)
 
-u_t = d_u*D(u, x, 2) + d_uv * D(v, x, 2) + gamma*(a - u + u**2 * v)
-v_t = d_v*D(v, x, 2) + d_vu * D(u, x, 2) + gamma*(b - u**2 * v)
+u_t = d_u * D(u, x, 2) + d_uv * D(v, x, 2) + gamma * (a - u + u**2 * v)
+v_t = d_v * D(v, x, 2) + d_vu * D(u, x, 2) + gamma * (b - u**2 * v)
 
 # we run QuPDE for the Schnakenberg equations
 if __name__ == '__main__':
