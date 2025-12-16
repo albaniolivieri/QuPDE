@@ -1,31 +1,38 @@
 name: CI
 
 on:
-    push:
-    pull_request:
+  push:
+  pull_request:
 
 jobs:
-    tests:
-        runs-on: ubuntu-latest
+  tests:
+    runs-on: ubuntu-latest
 
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
+    strategy:
+        fail-fast: false
+        matrix:
+          python-version: ['3.8', '3.13']
+          os: ubuntu-latest
 
-            - name: Set up uv
-              uses: astral-sh/setup-uv@v7
-              with:
-                  cache: true
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-            - name: Set up Python
-              uses: actions/setup-python@v5
-              with:
-                  python-version: "3.12"
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          cache: true
 
-            - name: Install dependencies (uv sync)
-              run: |
-                  uv sync --frozen
-                  uv pip install pytest pytest-cov
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
 
-            - name: Run tests (coverage)
-              run: uv run pytest -q --maxfail=1
+      - name: Install dependencies (uv sync)
+        run: uv sync --frozen
+
+      - name: Lint (ruff)
+        run: uv run ruff check
+
+      - name: Run tests (coverage)
+        run: uv run pytest -q --maxfail=1
