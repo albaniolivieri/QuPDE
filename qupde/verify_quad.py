@@ -53,7 +53,7 @@ def is_quadratization(
                 quad.append(sp.Eq(name, result[1]))
         else:
             quad.append(sp.Eq(name, names[V2_poly.index(pol)]))
-            
+
     if NS != []:
         # for printing problematic polynomials, uncomment next line:
         # for i in range(len(NS)): pprint(f'NS for expr {NS[i][0]}: {NS[i][1]}')

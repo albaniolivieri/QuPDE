@@ -202,6 +202,15 @@ Using `python` directly:
 python -m unittest tests/test_quadratization.py
 ```
 
+### Linting and formatting (Ruff)
+
+To check code style and automatically format the code (if you have installed the development dependencies, e.g. with `uv sync --group dev`), run:
+
+```bash
+uv run ruff check .
+uv run ruff format .
+```
+
 In this module, we provided tests for:
 
 - The branch-and-bound search framework

@@ -81,7 +81,7 @@ class FractionDecomp:
             A list with all symbols of the PDE system
         consts
             A list with all constants of the PDE system
-        
+
         Returns
         -------
         tuple[
@@ -140,7 +140,7 @@ class FractionDecomp:
         ----------
         R
             The polynomial ring of the PDE system
-        
+
         Returns
         -------
         None
@@ -161,7 +161,7 @@ class FractionDecomp:
             A dictionary with the differentiation rules
         n_diff : optional
             The order of differentiation
-        
+
         Returns
         -------
         PolyElement
@@ -177,7 +177,7 @@ class FractionDecomp:
             )
             deriv_den = den**2
             deriv_var = deriv_var**2
-            
+
         return den.ring(self.try_reduce(deriv_num * deriv_var))
 
     def try_reduce(self, poly: PolyElement) -> PolyElement:
@@ -188,7 +188,7 @@ class FractionDecomp:
         ----------
         poly
             The polynomial to be reduced
-        
+
         Returns
         -------
         PolyElement

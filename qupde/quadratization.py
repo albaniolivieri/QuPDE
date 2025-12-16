@@ -6,16 +6,17 @@ from .search_quad import bnb, nearest_neighbor
 from .mon_heuristics import by_fun, by_degree_order, by_order_degree
 from .utils import get_sys_order
 
+
 def quadratize(
     func_eq: list[tuple[sp.Function, sp.Expr]],
     diff_ord: Optional[int] = None,
-    sort_fun: Optional[str] = 'by_fun',
+    sort_fun: Optional[str] = "by_fun",
     nvars_bound: Optional[int] = 10,
     first_indep: Optional[sp.Symbol] = sp.symbols("t"),
     max_der_order: Optional[int] = None,
-    search_alg: Optional[str] = 'bnb', # 'bnb' or 'inn'
-    printing: Optional[str] = '', #'pprint' or 'latex'
-    show_nodes: bool = False
+    search_alg: Optional[str] = "bnb",  # 'bnb' or 'inn'
+    printing: Optional[str] = "",  #'pprint' or 'latex'
+    show_nodes: bool = False,
 ) -> tuple[list[PolyElement], list[PolyElement], int]:
     """Quadratizes a given PDE
 
@@ -24,7 +25,7 @@ def quadratize(
     func_eq
         Tuples with the symbol and equations of the PDE
     diff_ord : optional
-        The differentiation order of the quadratization 
+        The differentiation order of the quadratization
     sort_fun : optional
         The function to sort the proposed new variables
     nvars_bound : optional
@@ -38,8 +39,8 @@ def quadratize(
     print_quad : optional
         If 'pprint', prints the quadratization in a human-readable format.
         If 'latex', prints the quadratization in LaTeX format.
-    show_nodes : optional  
-        If True, returns the number of nodes traversed by the algorithm 
+    show_nodes : optional
+        If True, returns the number of nodes traversed by the algorithm
 
     Returns
     -------
@@ -47,48 +48,49 @@ def quadratize(
         a tuple with the best quadratization found, the variables introduced
         from rational expressions and the total number of traversed nodes
     """
-    undef_fun = [symbol for symbol, _, in func_eq]
+    undef_fun = [symbol for symbol, _ in func_eq]
     x_var = [
         symbol for symbol in undef_fun[0].free_symbols if symbol != first_indep
     ].pop()
-    
+
     if diff_ord is None:
         diff_ord = 3 * get_sys_order([expr for _, expr in func_eq])
-    
+
     poly_syst = PDESys(func_eq, diff_ord, (first_indep, x_var))
     quad = []
     nodes = 0
-    
-    if sort_fun == 'by_fun':
-        sort_fun = by_fun 
-    elif sort_fun == 'by_degree_order':
+
+    if sort_fun == "by_fun":
+        sort_fun = by_fun
+    elif sort_fun == "by_degree_order":
         sort_fun = by_degree_order
-    elif sort_fun == 'by_order_degree':
+    elif sort_fun == "by_order_degree":
         sort_fun = by_order_degree
-    else: 
+    else:
         raise ValueError(f"Unknown sorting function: {sort_fun}")
 
-    if search_alg == 'inn':
+    if search_alg == "inn":
         quad, nodes = nearest_neighbor(poly_syst, sort_fun, new_vars=[])
-    elif search_alg == 'bnb':
+    elif search_alg == "bnb":
         quad, _, nodes = bnb([], nvars_bound, poly_syst, sort_fun, max_der_order)
     if quad is None:
         print("Quadratization not found")
         if show_nodes:
             return [], nodes
-        else: return []
+        else:
+            return []
 
     poly_syst.set_new_vars(quad)
     _, quad_syst = poly_syst.try_make_quadratic()
     poly_syst.set_quad_sys(quad_syst)
-    
+
     if printing:
         print_quad(poly_syst, p_style=printing)
-        
-    if show_nodes: 
-        print('Nodes traversed:', nodes)
+
+    if show_nodes:
+        print("Nodes traversed:", nodes)
         return poly_syst, nodes
-        
+
     return poly_syst
 
 
@@ -97,12 +99,12 @@ def check_quadratization(
     new_vars: list[PolyElement],
     n_diff: int,
     first_indep: Optional[sp.Symbol] = sp.symbols("t"),
-) -> bool: 
+) -> bool:
     """Checks if a given set of new variables is a quadratization for the provided PDE
 
     Parameters
     ----------
-    func_eq 
+    func_eq
         Tuples with the symbol and equations of the PDE
     new_vars
         List of proposed new variables
@@ -116,7 +118,7 @@ def check_quadratization(
     bool
         True if the proposed quadratization is valid, False otherwise
     """
-    undef_fun = [symbol for symbol, _, in func_eq]
+    undef_fun = [symbol for symbol, _ in func_eq]
     x_var = [
         symbol for symbol in undef_fun[0].free_symbols if symbol != first_indep
     ].pop()
@@ -125,25 +127,26 @@ def check_quadratization(
 
     return poly_syst.try_make_quadratic()
 
+
 def print_quad(poly_syst, p_style):
     new_pde = poly_syst.get_quad_sys()
-    new_vars_named = [(sp.symbols(f'w_{i}'), pol)
-                          for i, pol in enumerate(poly_syst.get_aux_vars()[0])]
+    new_vars_named = [
+        (sp.symbols(f"w_{i}"), pol) for i, pol in enumerate(poly_syst.get_aux_vars()[0])
+    ]
     print("\nQuadratization:")
     for name, var in new_vars_named:
-        if p_style == 'latex':
+        if p_style == "latex":
             print(sp.latex(sp.Eq(name, var.as_expr())))
         else:
             sp.pprint(sp.Eq(name, var.as_expr()))
     for name, var in poly_syst.get_aux_vars()[1]:
-        if p_style == 'latex':
-            print(sp.latex(sp.Eq(name, 1/var.as_expr())))
+        if p_style == "latex":
+            print(sp.latex(sp.Eq(name, 1 / var.as_expr())))
         else:
-            sp.pprint(sp.Eq(name, 1/var.as_expr()))
+            sp.pprint(sp.Eq(name, 1 / var.as_expr()))
     print("\nQuadratic PDE:")
     for exprs in new_pde:
-        if p_style == 'latex':
+        if p_style == "latex":
             print(sp.latex(exprs))
         else:
             sp.pprint(exprs)
-    

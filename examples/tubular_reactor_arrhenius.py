@@ -25,11 +25,7 @@ beta = sp.symbols("beta", constant=True)
 theta_ref = sp.symbols("theta_ref", constant=True)
 gamma = sp.symbols("gamma", constant=True)
 
-psi_t = (
-    (1 / Pe) * D(psi, s, 2)
-    - D(psi, s)
-    - D_ct * psi * y
-)
+psi_t = (1 / Pe) * D(psi, s, 2) - D(psi, s) - D_ct * psi * y
 theta_t = (
     (1 / Pe) * D(theta, s, 2)
     - D(theta, s)
@@ -47,7 +43,7 @@ if __name__ == "__main__":
             [(psi, psi_t), (theta, theta_t), (y, y_t)],
             diff_ord=2,
             nvars_bound=7,
-            max_der_order=0
+            max_der_order=0,
         )
         times.append(time.time() - ti)
 
@@ -60,10 +56,6 @@ if __name__ == "__main__":
         max_der_order=0,
         printing="pprint",
     )
-    
+
     print("Average time", avg)
     print("Standard deviation", std)
-    
-    
-
-

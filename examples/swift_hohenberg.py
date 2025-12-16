@@ -11,23 +11,32 @@ used as a model for the study of various issues in pattern formation:
 References:
     Burke, J., & Knobloch, E. (2006). Localized states in the generalized Swift-Hohenberg equation. Physical Review E, 73(5).
 """
-t, x = sp.symbols('t x')
-u = sp.Function('u')(t,x)
-r, qc, v, g = sp.symbols('r qc v g', constant=True)
+t, x = sp.symbols("t x")
+u = sp.Function("u")(t, x)
+r, qc, v, g = sp.symbols("r qc v g", constant=True)
 
-u_t = r * u - D(u, (x, 2))**2 * u - 2 * qc**2 * D(u, (x, 2))**2 * u - qc**4 * u + v * u**2 - g * u**3 
+u_t = (
+    r * u
+    - D(u, (x, 2)) ** 2 * u
+    - 2 * qc**2 * D(u, (x, 2)) ** 2 * u
+    - qc**4 * u
+    + v * u**2
+    - g * u**3
+)
 
 # we run QuPDE for the Swift-Hohenberg equation
-if __name__ == '__main__':
-    times= []
+if __name__ == "__main__":
+    times = []
     for i in range(10):
         ti = time.time()
-        quadratize([(u, u_t)], diff_ord=4, search_alg = 'bnb', max_der_order=4)
-        times.append(time.time() - ti) 
+        quadratize([(u, u_t)], diff_ord=4, search_alg="bnb", max_der_order=4)
+        times.append(time.time() - ti)
     avg = statistics.mean(times[1:])
     std = statistics.stdev(times[1:])
-    
-    quadratize([(u, u_t)], diff_ord=4, search_alg = 'bnb', max_der_order=4, printing = 'latex')
 
-    print('Average time', avg)
-    print('Standard deviation', std)
+    quadratize(
+        [(u, u_t)], diff_ord=4, search_alg="bnb", max_der_order=4, printing="latex"
+    )
+
+    print("Average time", avg)
+    print("Standard deviation", std)

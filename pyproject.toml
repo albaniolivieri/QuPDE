@@ -21,3 +21,8 @@ dependencies = [
 "Homepage" = "https://github.com/albaniolivieri/QuPDE"
 "Issue Tracker" = "https://github.com/albaniolivieri/QuPDE/issues"
 "Repository" = "https://github.com/albaniolivieri/QuPDE"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.14.9",
+]

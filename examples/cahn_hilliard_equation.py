@@ -13,23 +13,23 @@ References:
     The Journal of Chemical Physics, 28(2), 258–267. doi:10.1063/1.1744102 
 """
 
-t, x = sp.symbols('t x')
-u = sp.Function('u')(t,x)
-epsilon = sp.symbols('epsilon', constant=True)
+t, x = sp.symbols("t x")
+u = sp.Function("u")(t, x)
+epsilon = sp.symbols("epsilon", constant=True)
 
 u_t = D(u**3 - u, (x, 2)).doit() - epsilon * D(u, x, 4)
 
 # we run QuPDE for the Cahn-Hilliard equation
-if __name__ == '__main__':   
-    times= []
+if __name__ == "__main__":
+    times = []
     for i in range(10):
         ti = time.time()
-        quadratize([(u, u_t)], 3, search_alg='bnb')
-        times.append(time.time() - ti) 
+        quadratize([(u, u_t)], 3, search_alg="bnb")
+        times.append(time.time() - ti)
     avg = statistics.mean(times[1:])
     std = statistics.stdev(times[1:])
 
-    quadratize([(u, u_t)], 3, search_alg='bnb', printing='pprint')
-    
-    print('Average time', avg)
-    print('Standard deviation', std)
+    quadratize([(u, u_t)], 3, search_alg="bnb", printing="pprint")
+
+    print("Average time", avg)
+    print("Standard deviation", std)

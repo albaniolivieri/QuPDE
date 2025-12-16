@@ -3,14 +3,21 @@ import sympy as sp
 from sympy.polys.rings import PolyElement
 from sympy import Derivative as D
 from .verify_quad import is_quadratization
-from .utils import diff_dict, get_sys_order, remove_vars, get_decompositions, sort_vars, get_pol_diff_order
+from .utils import (
+    diff_dict,
+    get_sys_order,
+    remove_vars,
+    get_decompositions,
+    sort_vars,
+    get_pol_diff_order,
+)
 from .fraction_decomp import FractionDecomp
 from .mon_heuristics import *
 
 
 class PDESys:
     """
-    A class used to represent a PDE system 
+    A class used to represent a PDE system
 
     ...
 
@@ -25,7 +32,7 @@ class PDESys:
     consts : list[sp.Symbol]
         a list of all the constants in the system
     order : int
-        an integer representing the differentiation order of the quadratization 
+        an integer representing the differentiation order of the quadratization
     frac_decomps : FractionDecomp
         a FractionDecomp object that stores the fraction decomposition of the system
     poly_vars : PolyElement
@@ -87,7 +94,7 @@ class PDESys:
         pde_sys
             Tuples with the symbol and expression of PDE
         n_diff
-            The order of the quadratization 
+            The order of the quadratization
         var_indep
             The symbol of the second independent variable
         new_vars : optional
@@ -228,33 +235,35 @@ class PDESys:
         """
         dic_x = {}
         dic_t = {}
-        frac_ders = {'t_der': [], 'x_der': []}
-        last = 0 
+        frac_ders = {"t_der": [], "x_der": []}
+        last = 0
 
         der_order = self.max_order + self.order
         for i in range(len(func_eq)):
             for j in range(der_order):
-                der_index = j + (der_order + 1) * i # index of the x-derivatives 
+                der_index = j + (der_order + 1) * i  # index of the x-derivatives
                 dic_x[self.poly_vars[der_index]] = self.poly_vars[der_index + 1]
                 last = der_index
-        count = last + 2 # we skip the last derivative symbol of the last function
+        count = last + 2  # we skip the last derivative symbol of the last function
         rels = self.frac_decomps.rels
         if dic_x:
             for i in range(len(rels)):
-                dic_x[self.poly_vars[count]] = self.frac_decomps.diff_frac(rels[i], dic_x)
+                dic_x[self.poly_vars[count]] = self.frac_decomps.diff_frac(
+                    rels[i], dic_x
+                )
                 var_ord = self.order - get_pol_diff_order(rels[i][1])
                 var_ord = max(var_ord, 0)
                 for j in range(1, var_ord + 1):
-                    frac_ders['x_der'].append(
+                    frac_ders["x_der"].append(
                         (
                             sp.symbols(f"{rels[i][0].name}{self.sec_indep}{j}"),
                             self.frac_decomps.diff_frac(rels[i], dic_x, n_diff=j),
                         )
                     )
                 count += der_order + 1
-        
+
         for k in range(len(func_eq)):
-            index_func = (der_order + 1) * k # index of unknown functions
+            index_func = (der_order + 1) * k  # index of unknown functions
             dic_t[self.poly_vars[index_func]] = self.pde_eq[k][1]
             for i in range(der_order + 1):
                 if i != 0:
@@ -264,14 +273,14 @@ class PDESys:
                         self.frac_decomps,
                     )
                     last = i + index_func
-        if last == 0: # no derivatives in x 
+        if last == 0:  # no derivatives in x
             count = len(func_eq)
-        else:                   
+        else:
             count = last + 1
 
         for rel in self.frac_decomps.rels:
-            frac_der_t = self.frac_decomps.diff_frac(rel, dic_t) 
-            frac_ders['t_der'].append(
+            frac_der_t = self.frac_decomps.diff_frac(rel, dic_t)
+            frac_ders["t_der"].append(
                 (sp.symbols(rel[0].name + self.first_indep.name), frac_der_t)
             )
             dic_t[self.poly_vars[count]] = frac_der_t
@@ -306,7 +315,7 @@ class PDESys:
         None
         """
         self.NS_list = NS_list
-        
+
     def set_quad_sys(self, quad_sys):
         """Sets with a new value the quad_sys attribute
 
@@ -320,7 +329,7 @@ class PDESys:
         None
         """
         self.quad_sys = quad_sys
-    
+
     def get_aux_vars(self) -> list[PolyElement]:
         """Gets the fraction variables introduced in the system
 
@@ -340,7 +349,7 @@ class PDESys:
             the max derivative order of the system
         """
         return self.max_order
-    
+
     def get_quad_sys(self):
         """Gets the quadratic PDE system
 
@@ -408,16 +417,16 @@ class PDESys:
             for i, pol in enumerate(self.new_vars["new_vars"])
         ]
         new_vars_t, new_vars_x = self.differentiate_dict(new_vars_named)
-        deriv_t = new_vars_t + self.frac_ders['t_der'] + self.pde_eq
+        deriv_t = new_vars_t + self.frac_ders["t_der"] + self.pde_eq
         poly_vars = list(filter(lambda x: str(x)[0] != "q", self.poly_vars))
- 
+
         V = (
             [(1, self.poly_vars[0].ring(1))]
             + [(sp.symbols(f"{sym}"), sym) for sym in poly_vars]
             + [(q, self.poly_vars[0].ring(q)) for q, _ in self.frac_decomps.rels]
             + new_vars_named
             + new_vars_x
-            + self.frac_ders['x_der']
+            + self.frac_ders["x_der"]
         )
 
         result = is_quadratization(V, deriv_t, self.frac_decomps)
@@ -444,14 +453,14 @@ class PDESys:
         list_vars = []
 
         min_monom = (0,) * len(self.NS_list[0][1].leading_expv())
-        
+
         for ns_pol in self.NS_list:
             monoms = [m for m in ns_pol[1].itermonoms() if sum(m) > 2]
         if monoms:
             min_monom = min(monoms, key=sum)
-            
+
         list_vars += get_decompositions(min_monom)
-        
+
         list_vars = list(
             map(
                 lambda x: (
@@ -463,7 +472,7 @@ class PDESys:
         )
 
         list_vars = remove_vars(list_vars, self.new_vars["new_vars"])
-        
+
         new_vars = list_vars[:]
 
         for i in range(len(list_vars)):

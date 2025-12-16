@@ -35,7 +35,7 @@ def pruning_rule_order(new_vars: list[PolyElement], max_order: int, pde_sys) -> 
 
     Parameters
     ----------
-    new_vars 
+    new_vars
         List of proposed new variables
     max_order
         The maximum order allowed
@@ -47,7 +47,9 @@ def pruning_rule_order(new_vars: list[PolyElement], max_order: int, pde_sys) -> 
         than the maximum order allowed, False otherwise
     """
     for var in new_vars:
-        if (get_pol_diff_order(var) > max_order) or ((pde_sys.order - get_pol_diff_order(var)) < 0):
+        if (get_pol_diff_order(var) > max_order) or (
+            (pde_sys.order - get_pol_diff_order(var)) < 0
+        ):
             return True
     return False
 
@@ -68,8 +70,9 @@ def shrink_quad(quad_vars: list[PolyElement], poly_syst: PDESys) -> list[PolyEle
         a list with a quadratization of an equal or lesser order than the original
     """
     final_vars = quad_vars
-    subsets = chain.from_iterable(combinations(quad_vars, r)
-                                  for r in range(1, len(quad_vars)))
+    subsets = chain.from_iterable(
+        combinations(quad_vars, r) for r in range(1, len(quad_vars))
+    )
     for var_group in subsets:
         poly_syst.set_new_vars(var_group)
         res, _ = poly_syst.try_make_quadratic()
@@ -89,13 +92,13 @@ def bnb(
 
     Parameters
     ----------
-    new_vars 
+    new_vars
         List of proposed new variables
-    best_nvars 
+    best_nvars
         The minimum number of variables found in a quadratization
     poly_syst
         The polynomial systemto quadratize
-    sort_fun 
+    sort_fun
         The function to sort the proposed new variables
     max_der_order
         The maximum order of derivatives allowed in the quadratic transformation
@@ -110,7 +113,7 @@ def bnb(
         return None, math.inf, 1
 
     if max_der_order is None:
-        if pruning_rule_order(new_vars, 3*poly_syst.get_max_order(), poly_syst):
+        if pruning_rule_order(new_vars, 3 * poly_syst.get_max_order(), poly_syst):
             return None, math.inf, 1
     else:
         if pruning_rule_order(new_vars, max_der_order, poly_syst):

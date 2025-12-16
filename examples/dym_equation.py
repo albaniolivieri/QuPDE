@@ -14,24 +14,22 @@ References:
     approximate solution. Ain Shams Engineering Journal, 4(1), 111–115. https://doi.org/10.1016/j.asej.2012.07.001
 """
 
-t, x = sp.symbols('t x')
-u = sp.Function('u')(t,x)
+t, x = sp.symbols("t x")
+u = sp.Function("u")(t, x)
 
 u_t = u**3 * D(u, x, 3)
 
 # we run QuPDE for the Dym equation
-if __name__ == '__main__':
-    times= []
+if __name__ == "__main__":
+    times = []
     for i in range(10):
         ti = time.time()
         quadratize([(u, u_t)], diff_ord=4, max_der_order=1)
-        times.append(time.time() - ti) 
+        times.append(time.time() - ti)
     avg = statistics.mean(times[1:])
     std = statistics.stdev(times[1:])
-    
-    quadratize([(u, u_t)], diff_ord=4, max_der_order=1, printing='pprint')
-    
-    print('Average time', avg)
-    print('Standard deviation', std)
-    
-    
+
+    quadratize([(u, u_t)], diff_ord=4, max_der_order=1, printing="pprint")
+
+    print("Average time", avg)
+    print("Standard deviation", std)
