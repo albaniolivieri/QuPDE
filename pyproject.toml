@@ -25,4 +25,18 @@ dependencies = [
 [dependency-groups]
 dev = [
     "ruff>=0.14.9",
+    "pytest>=8.3.5",
+    "pytest-cov>=5.0.0",
 ]
+
+[tool.pytest.ini_options]
+addopts = "--cov=qupde --cov-report=term-missing"
+testpaths = ["tests"]
+
+[tool.coverage.run]
+branch = true
+source = ["qupde"]
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true
