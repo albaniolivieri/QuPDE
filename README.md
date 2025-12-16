@@ -193,13 +193,13 @@ To run tests, execute one of the following commands in the pde-quad directory:
 Using `uv`:
 
 ```bash
-uv run python -m unittest tests/test_quadratization.py
+uv run pytest
 ```
 
 Using `python` directly:
 
 ```bash
-python -m unittest tests/test_quadratization.py
+python -m pytest
 ```
 
 ### Linting and formatting (Ruff)
