@@ -3,19 +3,39 @@ from typing import List, Optional
 import sympy as sp
 import typer
 
-from .quadratization import quadratize
-from .cli_examples import EXAMPLES
-from .cli_parsing import (
-    INPUT_FORMATS,
-    PRINTING_OPTIONS,
-    SEARCH_ALGS,
-    SORT_FUNS,
-    parse_user_equations,
-    validate_choice,
-)
+from qupde.cli.constants import InputFormat, Printing, SearchAlg, SortFun
+from qupde.cli.examples import EXAMPLES
+from qupde.cli.errors import ParseError, QuadratizationError
+from qupde.cli.service import QuadratizationRequest, run_quadratization
+from qupde.quadratization import quadratize
 
 
 app = typer.Typer(help="Command-line interface for running QuPDE quadratizations.")
+
+
+def _emit_result(
+    aux_vars,
+    frac_vars,
+    quad_sys,
+    traversed,
+    output: Optional[str],
+) -> None:
+    typer.echo(
+        f"Quadratization completed with {len(aux_vars)} polynomial and {len(frac_vars)} rational auxiliary variables."
+    )
+    typer.echo(f"Quadratic system size: {len(quad_sys)} equation(s).")
+
+    if traversed is not None:
+        typer.echo(f"Nodes traversed: {traversed}")
+
+    if output:
+        summary_lines = [
+            f"aux_vars: {len(aux_vars)}",
+            f"frac_vars: {len(frac_vars)}",
+            f"quadratic_system_eqs: {len(quad_sys)}",
+        ]
+        with open(output, "w", encoding="utf-8") as fh:
+            fh.write("\n".join(summary_lines))
 
 
 @app.command()
@@ -43,11 +63,10 @@ def run(
         "--funcs",
         help='Functions of the system, comma-separated (e.g. "u" or "u,v"). Required with --eq.',
     ),
-    input_format: str = typer.Option(
-        "sympy",
+    input_format: InputFormat = typer.Option(
+        InputFormat.sympy,
         "--format",
         help="Parser format for equations.",
-        callback=lambda v: validate_choice(v, INPUT_FORMATS, "format"),
     ),
     example: Optional[str] = typer.Option(
         None,
@@ -60,12 +79,12 @@ def run(
         "--diff-ord",
         help="Override the differentiation order. Defaults to the example's suggested value.",
     ),
-    sort_fun: str = typer.Option(
-        "by_fun",
+    sort_fun: SortFun = typer.Option(
+        SortFun.by_fun,
         "--sort-fun",
         help="Sorting heuristic for proposed variables.",
         rich_help_panel="Search configuration",
-        callback=lambda v: validate_choice(v, SORT_FUNS, "sort_fun"),
+        case_sensitive=False,
     ),
     nvars_bound: int = typer.Option(
         10,
@@ -85,19 +104,19 @@ def run(
         help="Maximum derivative order allowed in new variables.",
         rich_help_panel="Search configuration",
     ),
-    search_alg: str = typer.Option(
-        "bnb",
+    search_alg: SearchAlg = typer.Option(
+        SearchAlg.bnb,
         "--search-alg",
         help="Search algorithm: branch-and-bound (bnb) or incremental nearest neighbor (inn).",
         rich_help_panel="Search configuration",
-        callback=lambda v: validate_choice(v, SEARCH_ALGS, "search_alg"),
+        case_sensitive=False,
     ),
-    printing: str = typer.Option(
-        "pprint",
+    printing: Printing = typer.Option(
+        Printing.pprint,
         "--printing",
         help="Output mode: pretty print, LaTeX, or none.",
         rich_help_panel="Output",
-        callback=lambda v: validate_choice(v, PRINTING_OPTIONS, "printing"),
+        case_sensitive=False,
     ),
     show_nodes: bool = typer.Option(
         False,
@@ -118,19 +137,35 @@ def run(
         typer.echo("Use either --eq (with --vars/--funcs) or --example, not both.")
         raise typer.Exit(code=1)
 
-    if user_equations:
-        if not vars or not funcs:
-            typer.echo("When using --eq, both --vars and --funcs are required.")
-            raise typer.Exit(code=1)
-        func_eq, indep_symbol = parse_user_equations(
-            eq_strings=eq,
-            indep_vars=vars,
-            func_names=funcs,
-            input_format=input_format,
-        )
-        selected_diff_ord = diff_ord if diff_ord is not None else 2
-        selected_max_der_order = max_der_order if max_der_order is not None else 2
-    else:
+    try:
+        if user_equations:
+            if not vars or not funcs:
+                typer.echo("When using --eq, both --vars and --funcs are required.")
+                raise typer.Exit(code=1)
+            req = QuadratizationRequest(
+                eq_strings=eq,
+                indep_vars=vars,
+                func_names=funcs,
+                input_format=input_format,
+                diff_ord=diff_ord,
+                sort_fun=sort_fun,
+                nvars_bound=nvars_bound,
+                first_indep=first_indep,
+                max_der_order=max_der_order,
+                search_alg=search_alg,
+                printing=printing,
+                show_nodes=show_nodes,
+            )
+            result = run_quadratization(req)
+            _emit_result(
+                result.aux_vars,
+                result.frac_vars,
+                result.quad_sys,
+                result.traversed,
+                output,
+            )
+            return
+
         if example is None:
             typer.echo("Provide either --eq (with --vars/--funcs) or --example.")
             raise typer.Exit(code=1)
@@ -143,57 +178,30 @@ def run(
 
         example_cfg = EXAMPLES[example_key]
         func_eq = example_cfg.builder()
-        selected_diff_ord = diff_ord if diff_ord is not None else example_cfg.diff_ord
-        selected_max_der_order = max_der_order
-        indep_symbol = (
-            sp.symbols(first_indep)
-            if first_indep is not None
-            else example_cfg.first_indep
+        indep_symbol = sp.symbols(first_indep) if first_indep else example_cfg.first_indep
+        result = quadratize(
+            func_eq,
+            diff_ord=diff_ord if diff_ord is not None else example_cfg.diff_ord,
+            sort_fun=sort_fun.value,
+            nvars_bound=nvars_bound,
+            first_indep=indep_symbol,
+            max_der_order=max_der_order,
+            search_alg=search_alg.value,
+            printing="" if printing == Printing.none else printing.value,
+            show_nodes=show_nodes,
         )
+        if result == []:
+            raise QuadratizationError("Quadratization not found.")
+        poly_syst, traversed = (result, None)
+        if show_nodes and isinstance(result, tuple):
+            poly_syst, traversed = result
+        aux_vars, frac_vars = poly_syst.get_aux_vars()
+        quad_sys = poly_syst.get_quad_sys()
+        _emit_result(aux_vars, frac_vars, quad_sys, traversed, output)
 
-    printing_arg = "" if printing == "none" else printing
-    quad_sort = sort_fun
-    search = search_alg
-
-    result = quadratize(
-        func_eq,
-        diff_ord=selected_diff_ord,
-        sort_fun=quad_sort,
-        nvars_bound=nvars_bound,
-        first_indep=indep_symbol,
-        max_der_order=selected_max_der_order,
-        search_alg=search,
-        printing=printing_arg,
-        show_nodes=show_nodes,
-    )
-
-    if result == []:
-        typer.echo("Quadratization not found.")
+    except (ParseError, QuadratizationError) as exc:
+        typer.echo(str(exc))
         raise typer.Exit(code=1)
-
-    poly_syst, traversed = (result, None)
-    if show_nodes and isinstance(result, tuple):
-        poly_syst, traversed = result
-
-    aux_vars, frac_vars = poly_syst.get_aux_vars()
-    quad_sys = poly_syst.get_quad_sys()
-
-    typer.echo(
-        f"Quadratization completed with {len(aux_vars)} polynomial and {len(frac_vars)} rational auxiliary variables."
-    )
-    typer.echo(f"Quadratic system size: {len(quad_sys)} equation(s).")
-
-    if traversed is not None:
-        typer.echo(f"Nodes traversed: {traversed}")
-
-    if output:
-        summary_lines = [
-            f"aux_vars: {len(aux_vars)}",
-            f"frac_vars: {len(frac_vars)}",
-            f"quadratic_system_eqs: {len(quad_sys)}",
-        ]
-        with open(output, "w", encoding="utf-8") as fh:
-            fh.write("\n".join(summary_lines))
 
 
 if __name__ == "__main__":

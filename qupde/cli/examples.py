@@ -3,14 +3,11 @@ from typing import Callable, Dict, List, Tuple
 
 import sympy as sp
 
-
 ExampleBuilder = Callable[[], List[Tuple[sp.Function, sp.Expr]]]
 
 
 @dataclass
 class ExamplePDE:
-    """Container for a PDE example used by the CLI."""
-
     description: str
     diff_ord: int
     builder: ExampleBuilder
@@ -18,7 +15,6 @@ class ExamplePDE:
 
 
 def _kdv() -> List[Tuple[sp.Function, sp.Expr]]:
-    """Korteweg–de Vries equation."""
     t, x = sp.symbols("t x")
     a = sp.symbols("a", constant=True)
     u = sp.Function("u")(t, x)
@@ -27,7 +23,6 @@ def _kdv() -> List[Tuple[sp.Function, sp.Expr]]:
 
 
 def _allen_cahn() -> List[Tuple[sp.Function, sp.Expr]]:
-    """Allen–Cahn equation."""
     t, x = sp.symbols("t x")
     u = sp.Function("u")(t, x)
     u_t = sp.Derivative(u, x, 2) + u - u**3
@@ -35,7 +30,6 @@ def _allen_cahn() -> List[Tuple[sp.Function, sp.Expr]]:
 
 
 def _brusselator() -> List[Tuple[sp.Function, sp.Expr]]:
-    """Brusselator reaction-diffusion system."""
     t, x = sp.symbols("t x")
     d_1, d_2, a, b = sp.symbols("d_1 d_2 a b", constant=True)
     lambd = sp.symbols("lambda", constant=True)

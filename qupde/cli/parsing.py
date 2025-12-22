@@ -3,34 +3,19 @@ from typing import Dict, List, Tuple
 import sympy as sp
 from sympy.parsing.mathematica import parse_mathematica
 from sympy.parsing.sympy_parser import parse_expr
-import typer
 
-
-SORT_FUNS = {"by_fun", "by_degree_order", "by_order_degree"}
-SEARCH_ALGS = {"bnb", "inn"}
-PRINTING_OPTIONS = {"pprint", "latex", "none"}
-INPUT_FORMATS = {"sympy", "mathematica"}
-
-
-def validate_choice(value: str, options: set[str], name: str) -> str:
-    """Validate and normalize CLI choices."""
-    value_lower = value.lower()
-    if value_lower not in options:
-        raise typer.BadParameter(
-            f"Invalid {name} '{value}'. Valid options: {', '.join(sorted(options))}."
-        )
-    return value_lower
+from qupde.cli.constants import InputFormat
+from qupde.cli.errors import ParseError
 
 
 def split_csv(raw: str, label: str) -> List[str]:
     values = [part.strip() for part in raw.split(",") if part.strip()]
     if not values:
-        raise typer.BadParameter(f"{label} cannot be empty.")
+        raise ParseError(f"{label} cannot be empty.")
     return values
 
 
 def _normalize_symbols(expr: sp.Expr, symbol_map: Dict[str, sp.Symbol]) -> sp.Expr:
-    """Replace symbols in expr with shared instances based on name."""
     replacements = {
         sym: symbol_map[sym.name] for sym in expr.free_symbols if sym.name in symbol_map
     }
@@ -40,7 +25,6 @@ def _normalize_symbols(expr: sp.Expr, symbol_map: Dict[str, sp.Symbol]) -> sp.Ex
 
 
 def _coerce_derivatives(expr: sp.Expr) -> sp.Expr:
-    """Replace Mathematica-style D(...) calls with SymPy Derivative objects."""
     return expr.replace(
         lambda e: getattr(e, "func", None) and e.func.__name__ == "D",
         lambda e: sp.Derivative(*e.args),
@@ -48,7 +32,6 @@ def _coerce_derivatives(expr: sp.Expr) -> sp.Expr:
 
 
 def _to_derivative(expr: sp.Expr) -> sp.Expr:
-    """Coerce Mathematica parser derivatives (D) into SymPy Derivative."""
     if isinstance(expr, sp.Derivative):
         return expr
     if getattr(expr, "func", None) and expr.func.__name__ == "D":
@@ -60,14 +43,13 @@ def parse_user_equations(
     eq_strings: List[str],
     indep_vars: str,
     func_names: str,
-    input_format: str,
+    input_format: InputFormat,
 ) -> Tuple[List[Tuple[sp.Function, sp.Expr]], sp.Symbol]:
-    """Parse user-provided equations into the format expected by quadratize."""
     indep_list = split_csv(indep_vars, "vars")
     func_list = split_csv(func_names, "funcs")
 
     if len(indep_list) != 2:
-        raise typer.BadParameter("Exactly two independent variables are required.")
+        raise ParseError("Exactly two independent variables are required.")
 
     first_indep, second_indep = (sp.symbols(name) for name in indep_list)
 
@@ -86,9 +68,9 @@ def parse_user_equations(
 
     func_eq: List[Tuple[sp.Function, sp.Expr]] = []
     for eq_str in eq_strings:
-        if input_format == "sympy":
+        if input_format == InputFormat.sympy:
             if "=" not in eq_str:
-                raise typer.BadParameter("SymPy format equations must contain '='.")
+                raise ParseError("SymPy format equations must contain '='.")
             lhs_str, rhs_str = eq_str.split("=", 1)
             lhs = parse_expr(lhs_str.strip(), local_dict=parser_locals, evaluate=False)
             rhs = parse_expr(rhs_str.strip(), local_dict=parser_locals, evaluate=False)
@@ -96,7 +78,7 @@ def parse_user_equations(
             rhs = _normalize_symbols(rhs, symbol_map)
         else:
             if "==" not in eq_str:
-                raise typer.BadParameter("Mathematica format equations must contain '=='.")
+                raise ParseError("Mathematica format equations must contain '=='.")
             lhs_str, rhs_str = eq_str.split("==", 1)
             lhs = parse_mathematica(lhs_str.strip())
             rhs = parse_mathematica(rhs_str.strip())
@@ -108,25 +90,25 @@ def parse_user_equations(
         lhs = _to_derivative(lhs)
 
         if not isinstance(lhs, sp.Derivative):
-            raise typer.BadParameter(
+            raise ParseError(
                 "Left-hand side must be a derivative in the first independent variable, e.g. Derivative(u(t,x), t)."
             )
 
         if not lhs.variables or lhs.variables[0] != first_indep:
-            raise typer.BadParameter(
+            raise ParseError(
                 f"Left-hand side must differentiate with respect to the first variable '{first_indep}'."
             )
 
         base_func = lhs.expr
         if not base_func.is_Function:
-            raise typer.BadParameter("Left-hand side must be a derivative of a function of the provided variables.")
+            raise ParseError("Left-hand side must be a derivative of a function of the provided variables.")
 
         func_name = base_func.func.__name__
         if func_name not in func_applied:
-            raise typer.BadParameter(f"Function '{func_name}' not declared in --funcs.")
+            raise ParseError(f"Function '{func_name}' not declared in functions list.")
 
         if len(base_func.args) != 2 or base_func.args != (first_indep, second_indep):
-            raise typer.BadParameter(
+            raise ParseError(
                 f"Function '{func_name}' must be called with exactly the independent variables ({first_indep}, {second_indep})."
             )
 
