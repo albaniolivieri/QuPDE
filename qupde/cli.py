@@ -1,4 +1,4 @@
-import dataclasses
+from dataclasses import dataclass
 from typing import Callable, Dict, List, Optional, Tuple
 
 import sympy as sp
@@ -16,7 +16,7 @@ SEARCH_ALGS = {"bnb", "inn"}
 PRINTING_OPTIONS = {"pprint", "latex", "none"}
 
 
-@dataclasses.dataclass
+@dataclass
 class ExamplePDE:
     """Container for a PDE example used by the CLI."""
 
