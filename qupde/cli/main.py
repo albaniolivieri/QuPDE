@@ -8,7 +8,20 @@ from qupde.cli.errors import ParseError, QuadratizationError
 from qupde.cli.service import QuadratizationRequest, run_quadratization
 
 
-app = typer.Typer(help="Command-line interface for running QuPDE quadratizations.")
+app = typer.Typer(
+    help=(
+        "Command-line interface for QuPDE.\n\n"
+        "Pass your own PDE system on the command line (in SymPy or Mathematica "
+        "syntax) and QuPDE will search for a quadratic transformation "
+        "(quadratization) of the equations. You can control the search via "
+        "options such as the differentiation order, search algorithm, and "
+        "maximum derivative order of new variables.\n\n"
+        "As a convenience, the CLI also ships with a small collection of built-in "
+        "examples that you can explore with `qupde examples` and quadratize with "
+        "`qupde run --example ...`. Run `qupde run --help` for the full list of "
+        "options."
+    )
+)
 
 
 def _emit_result(
@@ -129,7 +142,7 @@ def run(
         help="Optional path to write a short summary of the quadratization.",
     ),
 ) -> None:
-    """Quadratize either built-in examples or user-provided equations."""
+    """Quadratize a PDE system from a built-in example or user-provided equations."""
     user_equations = len(eq) > 0
     if user_equations and example:
         typer.echo("Use either --eq (with --vars/--funcs) or --example, not both.")
