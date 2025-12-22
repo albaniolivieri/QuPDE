@@ -1,13 +1,11 @@
 from typing import Optional
 
-import sympy as sp
 import typer
 
 from qupde.cli.constants import InputFormat, Printing, SearchAlg, SortFun
 from qupde.cli.examples import EXAMPLES
 from qupde.cli.errors import ParseError, QuadratizationError
 from qupde.cli.service import QuadratizationRequest, run_quadratization
-from qupde.quadratization import quadratize
 
 
 app = typer.Typer(help="Command-line interface for running QuPDE quadratizations.")
@@ -178,28 +176,26 @@ def run(
 
         example_cfg = EXAMPLES[example_key]
         func_eq = example_cfg.builder()
-        indep_symbol = (
-            sp.symbols(first_indep) if first_indep else example_cfg.first_indep
-        )
-        result = quadratize(
-            func_eq,
+        req = QuadratizationRequest(
+            func_eq=func_eq,
+            indep_symbol=example_cfg.first_indep if first_indep is None else None,
+            first_indep=first_indep,
             diff_ord=diff_ord if diff_ord is not None else example_cfg.diff_ord,
-            sort_fun=sort_fun.value,
+            sort_fun=sort_fun,
             nvars_bound=nvars_bound,
-            first_indep=indep_symbol,
             max_der_order=max_der_order,
-            search_alg=search_alg.value,
-            printing="" if printing == Printing.none else printing.value,
+            search_alg=search_alg,
+            printing=printing,
             show_nodes=show_nodes,
         )
-        if result == []:
-            raise QuadratizationError("Quadratization not found.")
-        poly_syst, traversed = (result, None)
-        if show_nodes and isinstance(result, tuple):
-            poly_syst, traversed = result
-        aux_vars, frac_vars = poly_syst.get_aux_vars()
-        quad_sys = poly_syst.get_quad_sys()
-        _emit_result(aux_vars, frac_vars, quad_sys, traversed, output)
+        result = run_quadratization(req)
+        _emit_result(
+            result.aux_vars,
+            result.frac_vars,
+            result.quad_sys,
+            result.traversed,
+            output,
+        )
 
     except (ParseError, QuadratizationError) as exc:
         typer.echo(str(exc))
