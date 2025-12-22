@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from typing import Callable, Dict, List, Optional, Tuple
 
 import sympy as sp
+from sympy.parsing.mathematica import parse_mathematica
+from sympy.parsing.sympy_parser import parse_expr
 import typer
 
 from .quadratization import quadratize
@@ -14,6 +16,7 @@ ExampleBuilder = Callable[[], List[Tuple[sp.Function, sp.Expr]]]
 SORT_FUNS = {"by_fun", "by_degree_order", "by_order_degree"}
 SEARCH_ALGS = {"bnb", "inn"}
 PRINTING_OPTIONS = {"pprint", "latex", "none"}
+INPUT_FORMATS = {"sympy", "mathematica"}
 
 
 @dataclass
@@ -84,6 +87,119 @@ def _validate_choice(value: str, options: set[str], name: str) -> str:
     return value_lower
 
 
+def _split_csv(raw: str, label: str) -> List[str]:
+    values = [part.strip() for part in raw.split(",") if part.strip()]
+    if not values:
+        raise typer.BadParameter(f"{label} cannot be empty.")
+    return values
+
+
+def _normalize_symbols(expr: sp.Expr, symbol_map: Dict[str, sp.Symbol]) -> sp.Expr:
+    """Replace symbols in expr with shared instances based on name."""
+    replacements = {
+        sym: symbol_map[sym.name] for sym in expr.free_symbols if sym.name in symbol_map
+    }
+    if not replacements:
+        return expr
+    return expr.xreplace(replacements)
+
+
+def _coerce_derivatives(expr: sp.Expr) -> sp.Expr:
+    """Replace Mathematica-style D(...) calls with SymPy Derivative objects."""
+    return expr.replace(
+        lambda e: getattr(e, "func", None) and e.func.__name__ == "D",
+        lambda e: sp.Derivative(*e.args),
+    )
+
+
+def _to_derivative(expr: sp.Expr) -> sp.Expr:
+    """Coerce Mathematica parser derivatives (D) into SymPy Derivative."""
+    if isinstance(expr, sp.Derivative):
+        return expr
+    if getattr(expr, "func", None) and expr.func.__name__ == "D":
+        return sp.Derivative(*expr.args)
+    return expr
+
+
+def _parse_user_equations(
+    eq_strings: List[str],
+    indep_vars: str,
+    func_names: str,
+    input_format: str,
+) -> Tuple[List[Tuple[sp.Function, sp.Expr]], sp.Symbol]:
+    """Parse user-provided equations into the format expected by quadratize."""
+    indep_list = _split_csv(indep_vars, "vars")
+    func_list = _split_csv(func_names, "funcs")
+
+    if len(indep_list) != 2:
+        raise typer.BadParameter("Exactly two independent variables are required.")
+
+    first_indep, second_indep = (sp.symbols(name) for name in indep_list)
+
+    func_objs = {name: sp.Function(name) for name in func_list}
+    func_applied = {name: fun(first_indep, second_indep) for name, fun in func_objs.items()}
+
+    parser_locals = {
+        indep_list[0]: first_indep,
+        indep_list[1]: second_indep,
+        "Derivative": sp.Derivative,
+        "D": sp.Derivative,
+    }
+    parser_locals.update(func_objs)
+
+    symbol_map = {sym.name: sym for sym in (first_indep, second_indep)}
+
+    func_eq: List[Tuple[sp.Function, sp.Expr]] = []
+    for eq_str in eq_strings:
+        if input_format == "sympy":
+            if "=" not in eq_str:
+                raise typer.BadParameter("SymPy format equations must contain '='.")
+            lhs_str, rhs_str = eq_str.split("=", 1)
+            lhs = parse_expr(lhs_str.strip(), local_dict=parser_locals, evaluate=False)
+            rhs = parse_expr(rhs_str.strip(), local_dict=parser_locals, evaluate=False)
+            lhs = _normalize_symbols(lhs, symbol_map)
+            rhs = _normalize_symbols(rhs, symbol_map)
+        else:
+            if "==" not in eq_str:
+                raise typer.BadParameter("Mathematica format equations must contain '=='.")
+            lhs_str, rhs_str = eq_str.split("==", 1)
+            lhs = parse_mathematica(lhs_str.strip())
+            rhs = parse_mathematica(rhs_str.strip())
+            lhs = _normalize_symbols(lhs, symbol_map)
+            rhs = _normalize_symbols(rhs, symbol_map)
+
+        lhs = _coerce_derivatives(lhs)
+        rhs = _coerce_derivatives(rhs)
+        lhs = _to_derivative(lhs)
+
+        if not isinstance(lhs, sp.Derivative):
+            raise typer.BadParameter(
+                "Left-hand side must be a derivative in the first independent variable, e.g. Derivative(u(t,x), t)."
+            )
+
+        if not lhs.variables or lhs.variables[0] != first_indep:
+            raise typer.BadParameter(
+                f"Left-hand side must differentiate with respect to the first variable '{first_indep}'."
+            )
+
+        base_func = lhs.expr
+        if not base_func.is_Function:
+            raise typer.BadParameter("Left-hand side must be a derivative of a function of the provided variables.")
+
+        func_name = base_func.func.__name__
+        if func_name not in func_applied:
+            raise typer.BadParameter(f"Function '{func_name}' not declared in --funcs.")
+
+        if len(base_func.args) != 2 or base_func.args != (first_indep, second_indep):
+            raise typer.BadParameter(
+                f"Function '{func_name}' must be called with exactly the independent variables ({first_indep}, {second_indep})."
+            )
+
+        func_eq.append((func_applied[func_name], rhs))
+
+    return func_eq, first_indep
+
+
 @app.command()
 def examples() -> None:
     """List the PDE examples that ship with the CLI."""
@@ -94,8 +210,29 @@ def examples() -> None:
 
 @app.command()
 def run(
-    example: str = typer.Option(
-        ...,
+    eq: List[str] = typer.Option(
+        [],
+        "--eq",
+        help="Equation(s) of the system. Use multiple --eq flags.",
+    ),
+    vars: Optional[str] = typer.Option(  # type: ignore
+        None,
+        "--vars",
+        help='Independent variables, comma-separated (e.g. "t,x"). Required with --eq.',
+    ),
+    funcs: Optional[str] = typer.Option(
+        None,
+        "--funcs",
+        help='Functions of the system, comma-separated (e.g. "u" or "u,v"). Required with --eq.',
+    ),
+    input_format: str = typer.Option(
+        "sympy",
+        "--format",
+        help="Parser format for equations.",
+        callback=lambda v: _validate_choice(v, INPUT_FORMATS, "format"),
+    ),
+    example: Optional[str] = typer.Option(
+        None,
         "--example",
         "-e",
         help="Name of the PDE example to quadratize. See `qupde examples`.",
@@ -150,19 +287,51 @@ def run(
         help="Display how many nodes were traversed by the search algorithm.",
         rich_help_panel="Search configuration",
     ),
+    output: Optional[str] = typer.Option(
+        None,
+        "--output",
+        "-o",
+        help="Optional path to write a short summary of the quadratization.",
+    ),
 ) -> None:
-    """Quadratize one of the built-in PDE examples."""
-    example_key = example.lower()
-    if example_key not in EXAMPLES:
-        typer.echo(f"Unknown example '{example}'. Run `qupde examples` to see options.")
+    """Quadratize either built-in examples or user-provided equations."""
+    user_equations = len(eq) > 0
+    if user_equations and example:
+        typer.echo("Use either --eq (with --vars/--funcs) or --example, not both.")
         raise typer.Exit(code=1)
 
-    example_cfg = EXAMPLES[example_key]
-    func_eq = example_cfg.builder()
-    selected_diff_ord = diff_ord if diff_ord is not None else example_cfg.diff_ord
-    indep_symbol = (
-        sp.symbols(first_indep) if first_indep is not None else example_cfg.first_indep
-    )
+    if user_equations:
+        if not vars or not funcs:
+            typer.echo("When using --eq, both --vars and --funcs are required.")
+            raise typer.Exit(code=1)
+        func_eq, indep_symbol = _parse_user_equations(
+            eq_strings=eq,
+            indep_vars=vars,
+            func_names=funcs,
+            input_format=input_format,
+        )
+        selected_diff_ord = diff_ord if diff_ord is not None else 2
+        selected_max_der_order = max_der_order if max_der_order is not None else 2
+    else:
+        if example is None:
+            typer.echo("Provide either --eq (with --vars/--funcs) or --example.")
+            raise typer.Exit(code=1)
+        example_key = example.lower()
+        if example_key not in EXAMPLES:
+            typer.echo(
+                f"Unknown example '{example}'. Run `qupde examples` to see options."
+            )
+            raise typer.Exit(code=1)
+
+        example_cfg = EXAMPLES[example_key]
+        func_eq = example_cfg.builder()
+        selected_diff_ord = diff_ord if diff_ord is not None else example_cfg.diff_ord
+        selected_max_der_order = max_der_order
+        indep_symbol = (
+            sp.symbols(first_indep)
+            if first_indep is not None
+            else example_cfg.first_indep
+        )
 
     printing_arg = "" if printing == "none" else printing
     quad_sort = sort_fun
@@ -174,7 +343,7 @@ def run(
         sort_fun=quad_sort,
         nvars_bound=nvars_bound,
         first_indep=indep_symbol,
-        max_der_order=max_der_order,
+        max_der_order=selected_max_der_order,
         search_alg=search,
         printing=printing_arg,
         show_nodes=show_nodes,
@@ -198,6 +367,15 @@ def run(
 
     if traversed is not None:
         typer.echo(f"Nodes traversed: {traversed}")
+
+    if output:
+        summary_lines = [
+            f"aux_vars: {len(aux_vars)}",
+            f"frac_vars: {len(frac_vars)}",
+            f"quadratic_system_eqs: {len(quad_sys)}",
+        ]
+        with open(output, "w", encoding="utf-8") as fh:
+            fh.write("\n".join(summary_lines))
 
 
 if __name__ == "__main__":
