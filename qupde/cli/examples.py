@@ -1,9 +1,9 @@
 from dataclasses import dataclass
-from typing import Callable, Dict, List, Tuple
+from typing import Callable
 
 import sympy as sp
 
-ExampleBuilder = Callable[[], List[Tuple[sp.Function, sp.Expr]]]
+ExampleBuilder = Callable[[], list[tuple[sp.Function, sp.Expr]]]
 
 
 @dataclass
@@ -14,7 +14,7 @@ class ExamplePDE:
     first_indep: sp.Symbol = sp.symbols("t")
 
 
-def _kdv() -> List[Tuple[sp.Function, sp.Expr]]:
+def _kdv() -> list[tuple[sp.Function, sp.Expr]]:
     t, x = sp.symbols("t x")
     a = sp.symbols("a", constant=True)
     u = sp.Function("u")(t, x)
@@ -22,14 +22,14 @@ def _kdv() -> List[Tuple[sp.Function, sp.Expr]]:
     return [(u, u_t)]
 
 
-def _allen_cahn() -> List[Tuple[sp.Function, sp.Expr]]:
+def _allen_cahn() -> list[tuple[sp.Function, sp.Expr]]:
     t, x = sp.symbols("t x")
     u = sp.Function("u")(t, x)
     u_t = sp.Derivative(u, x, 2) + u - u**3
     return [(u, u_t)]
 
 
-def _brusselator() -> List[Tuple[sp.Function, sp.Expr]]:
+def _brusselator() -> list[tuple[sp.Function, sp.Expr]]:
     t, x = sp.symbols("t x")
     d_1, d_2, a, b = sp.symbols("d_1 d_2 a b", constant=True)
     lambd = sp.symbols("lambda", constant=True)
@@ -40,7 +40,7 @@ def _brusselator() -> List[Tuple[sp.Function, sp.Expr]]:
     return [(u, u_t), (v, v_t)]
 
 
-EXAMPLES: Dict[str, ExamplePDE] = {
+EXAMPLES: dict[str, ExamplePDE] = {
     "kdv": ExamplePDE(
         description="Korteweg–de Vries equation u_t = a u^2 u_x - u_xxx",
         diff_ord=3,

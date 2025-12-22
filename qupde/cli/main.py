@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional
 
 import sympy as sp
 import typer
@@ -48,7 +48,7 @@ def examples() -> None:
 
 @app.command()
 def run(
-    eq: List[str] = typer.Option(
+    eq: list[str] = typer.Option(
         [],
         "--eq",
         help="Equation(s) of the system. Use multiple --eq flags.",
@@ -178,7 +178,9 @@ def run(
 
         example_cfg = EXAMPLES[example_key]
         func_eq = example_cfg.builder()
-        indep_symbol = sp.symbols(first_indep) if first_indep else example_cfg.first_indep
+        indep_symbol = (
+            sp.symbols(first_indep) if first_indep else example_cfg.first_indep
+        )
         result = quadratize(
             func_eq,
             diff_ord=diff_ord if diff_ord is not None else example_cfg.diff_ord,

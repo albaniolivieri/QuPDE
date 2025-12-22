@@ -1,5 +1,3 @@
-from typing import Dict, List, Tuple
-
 import sympy as sp
 from sympy.parsing.mathematica import parse_mathematica
 from sympy.parsing.sympy_parser import parse_expr
@@ -8,14 +6,14 @@ from qupde.cli.constants import InputFormat
 from qupde.cli.errors import ParseError
 
 
-def split_csv(raw: str, label: str) -> List[str]:
+def split_csv(raw: str, label: str) -> list[str]:
     values = [part.strip() for part in raw.split(",") if part.strip()]
     if not values:
         raise ParseError(f"{label} cannot be empty.")
     return values
 
 
-def _normalize_symbols(expr: sp.Expr, symbol_map: Dict[str, sp.Symbol]) -> sp.Expr:
+def _normalize_symbols(expr: sp.Expr, symbol_map: dict[str, sp.Symbol]) -> sp.Expr:
     replacements = {
         sym: symbol_map[sym.name] for sym in expr.free_symbols if sym.name in symbol_map
     }
@@ -40,11 +38,11 @@ def _to_derivative(expr: sp.Expr) -> sp.Expr:
 
 
 def parse_user_equations(
-    eq_strings: List[str],
+    eq_strings: list[str],
     indep_vars: str,
     func_names: str,
     input_format: InputFormat,
-) -> Tuple[List[Tuple[sp.Function, sp.Expr]], sp.Symbol]:
+) -> tuple[list[tuple[sp.Function, sp.Expr]], sp.Symbol]:
     indep_list = split_csv(indep_vars, "vars")
     func_list = split_csv(func_names, "funcs")
 
@@ -54,7 +52,9 @@ def parse_user_equations(
     first_indep, second_indep = (sp.symbols(name) for name in indep_list)
 
     func_objs = {name: sp.Function(name) for name in func_list}
-    func_applied = {name: fun(first_indep, second_indep) for name, fun in func_objs.items()}
+    func_applied = {
+        name: fun(first_indep, second_indep) for name, fun in func_objs.items()
+    }
 
     parser_locals = {
         indep_list[0]: first_indep,
@@ -66,7 +66,7 @@ def parse_user_equations(
 
     symbol_map = {sym.name: sym for sym in (first_indep, second_indep)}
 
-    func_eq: List[Tuple[sp.Function, sp.Expr]] = []
+    func_eq: list[tuple[sp.Function, sp.Expr]] = []
     for eq_str in eq_strings:
         if input_format == InputFormat.sympy:
             if "=" not in eq_str:
@@ -101,7 +101,9 @@ def parse_user_equations(
 
         base_func = lhs.expr
         if not base_func.is_Function:
-            raise ParseError("Left-hand side must be a derivative of a function of the provided variables.")
+            raise ParseError(
+                "Left-hand side must be a derivative of a function of the provided variables."
+            )
 
         func_name = base_func.func.__name__
         if func_name not in func_applied:

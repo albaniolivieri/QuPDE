@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import Optional
 
 import sympy as sp
 
@@ -11,7 +11,7 @@ from qupde.cli.parsing import parse_user_equations
 
 @dataclass
 class QuadratizationRequest:
-    eq_strings: List[str]
+    eq_strings: list[str]
     indep_vars: str
     func_names: str
     input_format: InputFormat = InputFormat.sympy
@@ -27,9 +27,9 @@ class QuadratizationRequest:
 
 @dataclass
 class QuadratizationResult:
-    aux_vars: List[sp.Expr]
-    frac_vars: List[sp.Expr]
-    quad_sys: List[sp.Expr]
+    aux_vars: list[sp.Expr]
+    frac_vars: list[sp.Expr]
+    quad_sys: list[sp.Expr]
     traversed: Optional[int]
 
 
