@@ -137,6 +137,17 @@ w₀ₜ = a⋅w₀⋅w₀ₓ₁ - 2⋅u⋅uₓ₃
 uₜ = a⋅uₓ₁⋅w₀ - uₓ₃
 ```
 
+## Command-line interface
+
+Installing QuPDE now provides a small Typer-based CLI:
+
+```bash
+qupde examples
+qupde run --example allen-cahn --printing pprint
+```
+
+Use `--diff-ord`, `--search-alg`, or `--max-der-order` to override defaults for an example, and `--printing latex` to emit LaTeX code.
+
 ## Examples
 
 We show a complete example using QuPDE's main function _quadratize_ to find a quadratization for the Allen-Cahn equation: $$u_t = u_{xx} + u - u^3.$$

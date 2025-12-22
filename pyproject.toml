@@ -18,6 +18,9 @@ dependencies = [
     "typer>=0.20.1",
 ]
 
+[project.scripts]
+qupde = "qupde.cli:app"
+
 [project.urls]
 "Homepage" = "https://github.com/albaniolivieri/QuPDE"
 "Issue Tracker" = "https://github.com/albaniolivieri/QuPDE/issues"
