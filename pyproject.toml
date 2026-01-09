@@ -14,8 +14,12 @@ readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.8"
 dependencies = [
-    "sympy>=1.5.0"
+    "sympy>=1.5.0",
+    "typer>=0.20.1",
 ]
+
+[project.scripts]
+qupde = "qupde.cli:app"
 
 [project.urls]
 "Homepage" = "https://github.com/albaniolivieri/QuPDE"

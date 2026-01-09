@@ -137,6 +137,41 @@ w₀ₜ = a⋅w₀⋅w₀ₓ₁ - 2⋅u⋅uₓ₃
 uₜ = a⋅uₓ₁⋅w₀ - uₓ₃
 ```
 
+## Command-line interface
+
+Installing QuPDE now provides a small Typer-based CLI:
+
+```bash
+qupde examples
+qupde run --example allen-cahn --printing pprint
+```
+
+Use `--diff-ord`, `--search-alg`, or `--max-der-order` to override defaults for an example, and `--printing latex` to emit LaTeX code.
+
+You can also pass your own PDEs without touching Python code. Provide the independent variables, functions, and one or more equations:
+
+```bash
+# SymPy syntax
+qupde run \
+  --vars "t,x" \
+  --funcs "u" \
+  --eq "Derivative(u(t,x), t) = Derivative(u(t,x),(x,2)) + u(t,x) - u(t,x)**3" \
+  --diff-ord 2 --max-der-order 2 --printing pprint
+
+# Mathematica-style syntax
+qupde run \
+  --format mathematica \
+  --vars "t,x" \
+  --funcs "u" \
+  --eq "D[u[t,x], t] == D[u[t,x], {x, 2}] + u[t,x] - u[t,x]^3" \
+  --printing none
+```
+
+Notes:
+- Declare exactly two independent variables via `--vars` (first is treated as time).
+- Each `--eq` must have a left-hand side derivative in the first variable (e.g., `Derivative(u(t,x), t)` or `D[u[t,x], t]`).
+- Any symbol not listed in `--vars`/`--funcs` is treated as a constant.
+
 ## Examples
 
 We show a complete example using QuPDE's main function _quadratize_ to find a quadratization for the Allen-Cahn equation: $$u_t = u_{xx} + u - u^3.$$
