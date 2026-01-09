@@ -9,7 +9,6 @@ def is_quadratization(
     V: list[PolyElement],
     deriv: list[PolyElement],
     frac_decomp: FractionDecomp,
-    latex: Optional[bool] = False,
 ) -> tuple[bool, list[PolyElement]]:
     """Verifies if all variables in V are a quadratization for the system in deriv.
     It also prints the quadratization.
@@ -22,8 +21,6 @@ def is_quadratization(
         List with the equations of the PDE system
     frac_decomp
         Fraction decomposition of the PDE system
-    latex : optional
-        If True, prints the quadratization in LaTeX format
 
     Returns
     -------
@@ -46,7 +43,6 @@ def is_quadratization(
         if pol not in V2_poly:
             result = is_linear_combination(V2_red, pol)
             if not result[0]:
-                # print('result[1]', result[1])
                 NS.append((name, result[1]))
             else:
                 quad.append(sp.Eq(name, result[1]))
