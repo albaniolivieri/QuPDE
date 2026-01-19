@@ -20,6 +20,7 @@ dependencies = [
 
 [project.scripts]
 qupde = "qupde.cli:app"
+check-examples = "qupde.examples_registry:_print_examples"
 
 [project.urls]
 "Homepage" = "https://github.com/albaniolivieri/QuPDE"
@@ -44,3 +45,6 @@ source = ["qupde"]
 [tool.coverage.report]
 show_missing = true
 skip_empty = true
+
+[tool.setuptools.packages.find]
+include = ["qupde*"]
