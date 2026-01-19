@@ -170,6 +170,18 @@ def _safe_module_name(filename: str) -> str:
     return "".join(ch if ch.isalnum() or ch == "_" else "_" for ch in stem)
 
 
+def _extract_first_docstring(source: str) -> str:
+    for marker in ('"""', "'''"):
+        start = source.find(marker)
+        if start == -1:
+            continue
+        end = source.find(marker, start + 3)
+        if end == -1:
+            continue
+        return source[start + 3 : end].strip()
+    return ""
+
+
 def _load_module(filename: str) -> dict:
     module_name = f"qupde.examples.{_safe_module_name(filename)}"
     with resources.path("qupde.examples", filename) as module_path:
@@ -202,8 +214,9 @@ def load_examples() -> dict[str, ExampleData]:
     examples: dict[str, ExampleData] = {}
 
     for spec in EXAMPLE_SPECS:
+        with resources.path("qupde.examples", spec.filename) as module_path:
+            description = _extract_first_docstring(module_path.read_text())
         namespace = _load_module(spec.filename)
-        description = namespace.get("__doc__") or ""
 
         func_eq: list[tuple[sp.Function, sp.Expr]] = []
         for func_name, expr_name in spec.func_eq:
