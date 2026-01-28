@@ -163,6 +163,9 @@ class PDESys:
                 )
             )
         ]
+        const_replace = [(sp.symbols(f"{symbol.name}"), symbol) for symbol in constants]
+        func_eq = [(lhs, rhs.subs(const_replace)) for lhs, rhs in func_eq]
+
         self.consts = constants
 
         poly_vars = []
