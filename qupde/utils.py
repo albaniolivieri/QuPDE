@@ -30,33 +30,10 @@ def get_sys_order(set_derivs: list[sp.Symbol]) -> int:
     return max_order
 
 
-def reduction(pol1: PolyElement, pol2: PolyElement) -> PolyElement:
-    """Reduces the first polynomial by the second one
-
-    Parameters
-    ----------
-    pol1 : PolyElement
-        the polynomial to be reduced
-    pol2 : PolyElement
-        the polynomial to reduce by
-
-    Returns
-    -------
-    PolyElement
-        the reduced polynomial
-    """
-    coef = pol1[1].coeff_monomial(pol2[2])
-    if coef != 0:
-        new_pol = pol1[1] - coef * pol2[1]
-        return (pol1[0] - coef * pol2[0], new_pol, new_pol.LM())
-    else:
-        return pol1
-
-
-def reduction_sparse(
+def reduction(
     pol1: tuple[sp.Expr, PolyElement], pol2: tuple[sp.Expr, PolyElement]
 ) -> tuple[sp.Expr, PolyElement, PolyElement]:
-    """Reduces the polynomial pol1 by the polynomial pol2 in the sparse representation
+    """Reduces the polynomial pol1 by the polynomial pol2
 
     Parameters
     ----------

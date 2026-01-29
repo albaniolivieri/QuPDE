@@ -1,6 +1,6 @@
 import sympy as sp
 from sympy.polys.rings import PolyElement
-from .utils import reduction_sparse
+from .utils import reduction
 from .fraction_decomp import FractionDecomp
 
 
@@ -70,7 +70,7 @@ def reduce_set(V2: list[PolyElement]) -> list[tuple[sp.Expr, PolyElement]]:
     """
     for i in range(len(V2)):
         for j in range(i):
-            V2[i] = reduction_sparse(V2[i], V2[j])
+            V2[i] = reduction(V2[i], V2[j])
         if V2[i][1] != 0:
             lead_coeff = V2[i][1].coeff(V2[i][1].leading_monom())
             V2[i] = (
@@ -79,7 +79,7 @@ def reduce_set(V2: list[PolyElement]) -> list[tuple[sp.Expr, PolyElement]]:
                 V2[i][1].leading_monom(),
             )
             for j in range(i):
-                V2[j] = reduction_sparse(V2[j], V2[i])
+                V2[j] = reduction(V2[j], V2[i])
     return [(a[0], a[1]) for a in V2]
 
 
@@ -105,7 +105,7 @@ def is_linear_combination(
     der_tuple = (0, der_pol, der_pol.leading_monom())
     V2 = [(name, pol, pol.leading_monom()) for name, pol in V2]
     for i in range(len(V2)):
-        der_tuple = reduction_sparse(der_tuple, V2[i])
+        der_tuple = reduction(der_tuple, V2[i])
         if der_tuple[1] == 0:
             return (True, -der_tuple[0])
     return (False, der_tuple[1])
