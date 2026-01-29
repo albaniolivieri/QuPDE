@@ -51,7 +51,7 @@ uv sync
 
 This will create (or update) a `.venv` virtual environment and install `qupde` and its dependencies. You can then run commands with `uv run`, as shown in the **Running Tests** section.
 
-4. Without `uv` (alternative):
+4. Without `uv`:
 
 ```console
 python -m venv .venv
@@ -139,7 +139,7 @@ uₜ = a⋅uₓ₁⋅w₀ - uₓ₃
 
 ## Command-line interface
 
-Installing QuPDE now provides a small Typer-based CLI:
+Installing QuPDE provides a small typer-based CLI:
 
 ```bash
 qupde examples
@@ -154,8 +154,9 @@ You can also pass your own PDEs without touching Python code. Provide the indepe
 # SymPy syntax
 qupde run \
   --vars "t,x" \
-  --funcs "u" \
-  --eq "Derivative(u(t,x), t) = Derivative(u(t,x),(x,2)) + u(t,x) - u(t,x)**3" \
+  --funcs "u, v" \
+  --eq "Derivative(u(t,x), t) = Derivative(u(t,x),(x,2)) + v(t,x) - u(t,x)**3" \
+  --eq "Derivative(v(t,x), t) = v(t,x)**2 + u(t,x)" \
   --diff-ord 2 --max-der-order 2 --printing pprint
 
 # Mathematica-style syntax
@@ -235,6 +236,11 @@ Using `python` directly:
 
 ```bash
 python -m pytest
+```
+
+If you want to see details about the tests while they are running, execute 
+```bash
+python -m pytest -s
 ```
 
 ### Linting and formatting (Ruff)

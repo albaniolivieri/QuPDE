@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "qupde"
-version = "1.0.0"
+version = "0.1.0"
 description = "Python library that finds an optimal and monomial quadratic transformation (quadratization) for nonquadratic PDEs."
 authors = [
     { name = "Albani Olivieri", email = "albaniolivieri@gmail.com" }, 

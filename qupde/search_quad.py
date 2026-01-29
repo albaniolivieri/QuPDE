@@ -167,7 +167,8 @@ def nearest_neighbor(
     pq = PriorityQueue()
 
     pq.put((len(new_vars), 0, new_vars))
-    NS_queue = deque()  # FIFO queue to explore subproblems in a lazy approach
+    # FIFO queue to explore subproblems in a lazy approach
+    NS_queue = deque()
     node_count, count = 0, 0
     quad_temp = None
 

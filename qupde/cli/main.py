@@ -34,16 +34,15 @@ def _emit_result(
     typer.echo(
         f"Quadratization completed with {len(aux_vars)} polynomial and {len(frac_vars)} rational auxiliary variables."
     )
-    typer.echo(f"Quadratic system size: {len(quad_sys)} equation(s).")
 
     if traversed is not None:
         typer.echo(f"Nodes traversed: {traversed}")
 
     if output:
         summary_lines = [
-            f"aux_vars: {len(aux_vars)}",
-            f"frac_vars: {len(frac_vars)}",
-            f"quadratic_system_eqs: {len(quad_sys)}",
+            f"aux_vars: {aux_vars}",
+            f"frac_vars: {[1 / var[1].as_expr() for var in frac_vars]}",
+            f"quadratic_system_eqs: {quad_sys}",
         ]
         with open(output, "w", encoding="utf-8") as fh:
             fh.write("\n".join(summary_lines))
