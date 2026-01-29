@@ -85,8 +85,9 @@ def quadratize(
         raise ValueError(
             "The bound on the number of variables must be a positive integer"
         )
-    if not isinstance(max_der_order, int) or max_der_order <= 0:
-        raise ValueError("The maximum derivative order must be a positive integer")
+    if max_der_order != None:
+        if not isinstance(max_der_order, int) or max_der_order <= 0:
+            raise ValueError("The maximum derivative order must be a positive integer")
 
     if search_alg == "inn":
         quad, nodes = nearest_neighbor(poly_syst, sort_fun, new_vars=[])

@@ -202,12 +202,17 @@ def get_pol_diff_order(pol: PolyElement) -> int:
     int
         the derivative order of the polynomial (highest derivative order)
     """
-    pattern = r"^[A-Za-z0-9]+_(?:[A-Za-z][0-9]+|[0-9]+[A-Za-z][0-9]+)$"
+    pattern = r"^[A-Za-z]_[0-9]*[A-Za-z][0-9]+$"
     derivs = [x for x in pol.ring.gens if pol.diff(x) != 0]
     order = 0
     for var in derivs:
-        if bool(re.match(pattern, str(var))):
-            diff_order = int(str(var)[-1])
-            if diff_order > order:
-                order = diff_order
+        var_str = str(var)
+        if bool(re.match(pattern, var_str)):
+            var_ord = ""
+            for char in reversed(var_str):
+                if char.isalpha():
+                    break
+                else:
+                    var_ord = char + var_ord
+            order = max(order, int(var_ord))
     return order
