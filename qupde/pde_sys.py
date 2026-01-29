@@ -244,11 +244,11 @@ class PDESys:
         for i in range(len(func_eq)):
             for j in range(der_order):
                 # index of the x-derivatives
-                der_index = j + (der_order + 1) * i  
+                der_index = j + (der_order + 1) * i
                 dic_x[self.poly_vars[der_index]] = self.poly_vars[der_index + 1]
                 last = der_index
         # we skip the last derivative symbol of the last function
-        count = last + 2  
+        count = last + 2
         rels = self.frac_decomps.rels
         if dic_x:
             for i in range(len(rels)):
@@ -268,7 +268,7 @@ class PDESys:
 
         for k in range(len(func_eq)):
             # index of unknown functions
-            index_func = (der_order + 1) * k  
+            index_func = (der_order + 1) * k
             dic_t[self.poly_vars[index_func]] = self.pde_eq[k][1]
             for i in range(der_order + 1):
                 if i != 0:
@@ -279,7 +279,7 @@ class PDESys:
                     )
                     last = i + index_func
         # the system has no x-derivatives
-        if last == 0:  
+        if last == 0:
             count = len(func_eq)
         else:
             count = last + 1

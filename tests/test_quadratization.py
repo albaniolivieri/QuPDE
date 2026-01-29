@@ -1,5 +1,5 @@
-import unittest
 import math
+import pytest
 from sympy import symbols, simplify, expand, nsimplify, Function
 from sympy import Derivative as D
 
@@ -9,7 +9,7 @@ from qupde.quadratization import check_quadratization
 from qupde.pde_sys import PDESys
 
 
-class TestCase:
+class PDECase:
     def __init__(self, func_eq, n_diff, max_der_order=None, nvars_bound=10) -> None:
         self.func_eq = func_eq
         self.n_diff = n_diff
@@ -17,178 +17,7 @@ class TestCase:
         self.n_vars_bound = nvars_bound
 
 
-class TestQuadratization(unittest.TestCase):
-    """
-    Test cases for the PDE quadratization algorithm.
-    """
-
-    def setUp(self):
-        """
-        Set up the test cases for the PDEs quadratization algorithm.
-        """
-        self.t, self.x = symbols("t x")
-        self.u = Function("u")(self.t, self.x)
-        self.v = Function("v")(self.t, self.x)
-        self.omega = symbols("omega", constant=True)
-
-        self.test_cases_quad = []
-
-        # u_t = - u_x * u**3 - 1/3 * u_x * u**2
-        # v_t = v_x * u - 2 * v_x
-        self.test_cases_quad.append(
-            TestCase(
-                [
-                    (
-                        self.u,
-                        -D(self.v, self.x) * self.u**3
-                        - 1 / 3 * D(self.v, self.x) * self.u**2,
-                    ),
-                    (self.v, D(self.v, self.x) * self.u - 2 * D(self.v, self.x)),
-                ],
-                2,
-                max_der_order=2,
-            )
-        )
-
-        # u_t = u**3 * u_xxx
-        self.test_cases_quad.append(
-            TestCase([(self.u, self.u**3 * D(self.u, self.x, 3))], 3)
-        )
-
-        # u_t = u_x**3 + u**3
-        self.test_cases_quad.append(
-            TestCase([(self.u, D(self.u, self.x) ** 3 + self.u**3)], 2, max_der_order=3)
-        )
-
-        # u_t = u_x**4
-        self.test_cases_quad.append(
-            TestCase([(self.u, D(self.u, self.x) ** 4)], 3, max_der_order=2)
-        )
-
-        # u_t = u_x**3 * u
-        self.test_cases_quad.append(
-            TestCase([(self.u, D(self.u, self.x) ** 3 * self.u)], 2, max_der_order=3)
-        )
-
-        # u_t = u_x**3
-        self.test_cases_quad.append(
-            TestCase([(self.u, D(self.u, self.x) ** 3)], 2, max_der_order=3)
-        )
-
-        self.test_cases_rat = []
-
-        # u_t = 3.4 * u_x * v_x
-        # v_t = v_x / v - pi * v_x
-        self.test_cases_rat.append(
-            TestCase(
-                [
-                    (self.u, 3.4 * D(self.u, self.x) * D(self.v, self.x)),
-                    (
-                        self.v,
-                        D(self.v, self.x) / self.v
-                        - round((math.pi), 5) * D(self.v, self.x),
-                    ),
-                ],
-                4,
-            )
-        )
-
-        # ut = 7.15666*D(u, x)/u - 5.677*D(u, x)
-        self.test_cases_rat.append(
-            TestCase(
-                [
-                    (
-                        self.u,
-                        7.15666 * D(self.u, self.x) / self.u
-                        + 5.677 * D(self.u, self.x),
-                    )
-                ],
-                1,
-            )
-        )
-
-        # u_t = u_xx * u**2 + 2
-        # v_t = v_xx/u**3 + u
-        self.test_cases_rat.append(
-            TestCase(
-                [
-                    (self.u, self.u**2 * D(self.u, self.x, 2) + 2),
-                    (self.v, D(self.v, self.x, 2) / self.u**3 + self.u),
-                ],
-                2,
-                10,
-            )
-        )
-
-        # u_t = 1/(5 * (u + 1))
-        self.test_cases_rat.append(TestCase([(self.u, 1 / (5 * (self.u + 1)))], 1))
-
-        # u_t = 1/(0.6 * u + 1.3)**2
-        self.test_cases_rat.append(
-            TestCase([(self.u, 1 / (0.6 * self.u + 0.5) ** 2)], 3)
-        )
-
-        # u_t = - 1/(u + u**2) - u
-        self.test_cases_rat.append(TestCase([(self.u, 1 / (self.u**2 + 1))], 3))
-
-        # u_t = - u_x/(u + 1)
-        self.test_cases_rat.append(
-            TestCase([(self.u, D(self.u, self.x) / (self.u + 1))], 3)
-        )
-
-        # u_t = 1/(u + 1)**2 + 1/(u - 1)
-        self.test_cases_rat.append(
-            TestCase(
-                [(self.u, 1 / (self.u + 1) ** 2 + 1 / (self.u - 1))], 4, max_der_order=4
-            )
-        )
-
-        # u_t = 1/(u**2) - 0.5 * u + 1
-        self.test_cases_rat.append(
-            TestCase([(self.u, 1 / (self.u**2) - 0.5 * self.u + 1)], 4, max_der_order=4)
-        )
-
-        # u_t = -u_xx/u - u**2 - u + 5
-        # v_t = u/v - v + 5
-        self.test_cases_rat.append(
-            TestCase(
-                [
-                    (self.u, -D(self.u, self.x, 2) / self.u - self.u**2 - self.u + 5),
-                    (self.v, self.u / self.v - self.v + 5),
-                ],
-                2,
-                max_der_order=10,
-                nvars_bound=6,
-            )
-        )
-
-        # u_t = 1/((u+1)(u+2))
-        self.test_cases_rat.append(
-            TestCase([(self.u, 1 / ((self.u + 1) * (self.u + 2)))], 0, max_der_order=1)
-        )
-
-        # u_t = 1/((v+1)(u+1))
-        # v_t = 1/u
-        self.test_cases_rat.append(
-            TestCase(
-                [(self.u, 1 / ((self.v + 1) * (self.u + 1))), (self.v, 1 / self.u)],
-                0,
-                max_der_order=1,
-            )
-        )
-
-        self.test_cases_coeff_sym = []
-
-        # u_t = omega * u**3 * u_xxx
-        self.test_cases_coeff_sym.append(
-            TestCase([(self.u, self.omega * self.u**3 * D(self.u, self.x, 3))], 3)
-        )
-
-        # u_t = 1/(omega * (u + 1))
-        self.test_cases_coeff_sym.append(
-            TestCase([(self.u, 1 / (self.omega * (self.u + 1)))], 1)
-        )
-
+class QuadratizationHelpers:
     def transform_new_vars(self, new_vars, frac_vars):
         """
         Transform the new variables to sympy expressions.
@@ -208,7 +37,7 @@ class TestQuadratization(unittest.TestCase):
             deriv_t.append((symbols(f"{new_vars[i][0]}_t"), wt.doit()))
         return deriv_t
 
-    def differentiate_x(self, new_vars, n_diff):
+    def differentiate_x(self, new_vars, n_diff, x):
         """
         Differentiate the new variables with respect to x according to the differential order.
         """
@@ -220,7 +49,7 @@ class TestQuadratization(unittest.TestCase):
                 var_ord = 0
             quad_vars.extend(
                 [
-                    (symbols(f"w_{i}{self.x}{j}"), D(vars_prop[i], self.x, j).doit())
+                    (symbols(f"w_{i}{x}{j}"), D(vars_prop[i], x, j).doit())
                     for j in range(1, var_ord + 1)
                 ]
                 + [(symbols(f"w_{i}"), vars_prop[i])]
@@ -231,13 +60,13 @@ class TestQuadratization(unittest.TestCase):
                 var_ord = 0
             quad_vars.extend(
                 [
-                    (symbols(f"q_{i}{self.x}{j}"), D(frac_vars[i], self.x, j).doit())
+                    (symbols(f"q_{i}{x}{j}"), D(frac_vars[i], x, j).doit())
                     for j in range(1, var_ord + 1)
                 ]
             )
         return quad_vars
 
-    def rewrite_expr(self, test_case, new_vars, frac_vars):
+    def rewrite_expr(self, test_case, new_vars, frac_vars, x):
         """
         Rewrite the expressions with the new variables definitions.
         """
@@ -245,7 +74,7 @@ class TestQuadratization(unittest.TestCase):
         refac = []
         for fun, _ in test_case.func_eq:
             refac += [
-                (symbols(f"{fun.name}_{self.x}{i}"), D(fun, self.x, i))
+                (symbols(f"{fun.name}_{x}{i}"), D(fun, x, i))
                 for i in range(test_case.n_diff + max_order + 1, 0, -1)
             ] + [(symbols(fun.name), fun)]
 
@@ -261,14 +90,14 @@ class TestQuadratization(unittest.TestCase):
         result = nsimplify(expr, rational=True, tolerance=0.0001)
         return result
 
-    def construct_quadratic_PDE(self, new_vars, frac_vars, test_case, refac):
+    def construct_quadratic_PDE(self, new_vars, frac_vars, test_case, refac, x):
         """
         Returns the new variables expressions and derivatives, and its differential equations
         to construct the quadratic PDE transformation.
         """
         var_dic = [(symbols(f"w_{i}"), new_vars[i]) for i in range(len(new_vars))]
         total_vars = (new_vars, [rel for _, rel in frac_vars])
-        quad_vars = self.differentiate_x(total_vars, test_case.n_diff)
+        quad_vars = self.differentiate_x(total_vars, test_case.n_diff, x)
         deriv_t = self.differentiate_t(
             test_case.func_eq,
             [(var, expr.subs(frac_vars)) for var, expr in var_dic] + frac_vars,
@@ -277,78 +106,199 @@ class TestQuadratization(unittest.TestCase):
         exprs_orig = [expr for _, expr in deriv_t]
         return refac, exprs_orig
 
-    def quadratization_test(self, search_alg, test_cases, sort_heur="by_fun"):
-        """
-        Main method to test the quadratization algorithm.
-        """
-        for test in test_cases:
-            print("\nTest case: ")
-            [print(f"Derivative({eq[0]}, t)", "=", eq[1]) for eq in test.func_eq]
-            poly_syst = quadratize(
-                test.func_eq,
-                test.n_diff,
-                sort_fun=sort_heur,
-                search_alg=search_alg,
-                max_der_order=test.max_der_order,
-                nvars_bound=test.n_vars_bound,
-            )
-            self.assertIsInstance(
-                poly_syst, PDESys, f"Quadratization not found for {test.func_eq}"
-            )
-            quad_prop, frac_vars = poly_syst.get_aux_vars()
-            print(f"Quadratization: {quad_prop}")
-            print(f"Rational variables: {frac_vars}")
 
-            quad_prop_expr, frac_vars_expr = self.transform_new_vars(
-                quad_prop, frac_vars
-            )
-            new_vars, frac_vars, refac = self.rewrite_expr(
-                test, quad_prop_expr, frac_vars_expr
-            )
+@pytest.fixture(scope="module")
+def test_data():
+    t, x = symbols("t x")
+    u = Function("u")(t, x)
+    v = Function("v")(t, x)
+    omega = symbols("omega", constant=True)
 
-            refac_new_vars, exprs_orig = self.construct_quadratic_PDE(
-                new_vars, frac_vars, test, refac
-            )
-            results = check_quadratization(test.func_eq, quad_prop, test.n_diff)
-            for i in range(len(exprs_orig)):
-                rewritten_result = results[1][i].rhs.subs(refac_new_vars)
-                self.assertEqual(
-                    simplify(
-                        self.convert_to_rational(exprs_orig[i])
-                        - self.convert_to_rational(rewritten_result.evalf())
-                    ),
-                    0,
-                    f"Test failed: expressions are not equal for {exprs_orig[i]} \n"
-                    + f"Equation: {results[1][i]} \n"
-                    + f"Original expression: {expand(self.convert_to_rational(exprs_orig[i]))} \n"
-                    + f"Quad expression: {self.convert_to_rational(rewritten_result.evalf())} \n"
-                    + f"Substraction: {simplify(self.convert_to_rational(exprs_orig[i]) - self.convert_to_rational(rewritten_result.evalf()))}",
+    helpers = QuadratizationHelpers()
+
+    test_cases_quad = [
+        # u_t = - u_x * u**3 - 1/3 * u_x * u**2
+        # v_t = v_x * u - 2 * v_x
+        PDECase(
+            [
+                (
+                    u,
+                    -D(v, x) * u**3 - 1 / 3 * D(v, x) * u**2,
+                ),
+                (v, D(v, x) * u - 2 * D(v, x)),
+            ],
+            2,
+            max_der_order=2,
+        ),
+        # u_t = u**3 * u_xxx
+        PDECase([(u, u**3 * D(u, x, 3))], 3),
+        # u_t = u_x**3 + u**3
+        PDECase([(u, D(u, x) ** 3 + u**3)], 2, max_der_order=3),
+        # u_t = u_x**4
+        PDECase([(u, D(u, x) ** 4)], 3, max_der_order=2),
+        # u_t = u_x**3 * u
+        PDECase([(u, D(u, x) ** 3 * u)], 2, max_der_order=3),
+        # u_t = u_x**3
+        PDECase([(u, D(u, x) ** 3)], 2, max_der_order=3),
+    ]
+
+    test_cases_rat = [
+        # u_t = 3.4 * u_x * v_x
+        # v_t = v_x / v - pi * v_x
+        PDECase(
+            [
+                (u, 3.4 * D(u, x) * D(v, x)),
+                (
+                    v,
+                    D(v, x) / v - round((math.pi), 5) * D(v, x),
+                ),
+            ],
+            4,
+        ),
+        # ut = 7.15666*D(u, x)/u - 5.677*D(u, x)
+        PDECase(
+            [
+                (
+                    u,
+                    7.15666 * D(u, x) / u + 5.677 * D(u, x),
                 )
+            ],
+            1,
+        ),
+        # u_t = u_xx * u**2 + 2
+        # v_t = v_xx/u**3 + u
+        PDECase(
+            [
+                (u, u**2 * D(u, x, 2) + 2),
+                (v, D(v, x, 2) / u**3 + u),
+            ],
+            2,
+            10,
+        ),
+        # u_t = 1/(5 * (u + 1))
+        PDECase([(u, 1 / (5 * (u + 1)))], 1),
+        # u_t = 1/(0.6 * u + 1.3)**2
+        PDECase([(u, 1 / (0.6 * u + 0.5) ** 2)], 3),
+        # u_t = - 1/(u + u**2) - u
+        PDECase([(u, 1 / (u**2 + 1))], 3),
+        # u_t = - u_x/(u + 1)
+        PDECase([(u, D(u, x) / (u + 1))], 3),
+        # u_t = 1/(u + 1)**2 + 1/(u - 1)
+        PDECase([(u, 1 / (u + 1) ** 2 + 1 / (u - 1))], 4, max_der_order=4),
+        # u_t = 1/(u**2) - 0.5 * u + 1
+        PDECase([(u, 1 / (u**2) - 0.5 * u + 1)], 4, max_der_order=4),
+        # u_t = -u_xx/u - u**2 - u + 5
+        # v_t = u/v - v + 5
+        PDECase(
+            [
+                (u, -D(u, x, 2) / u - u**2 - u + 5),
+                (v, u / v - v + 5),
+            ],
+            2,
+            max_der_order=10,
+            nvars_bound=6,
+        ),
+        # u_t = 1/((u+1)(u+2))
+        PDECase([(u, 1 / ((u + 1) * (u + 2)))], 0, max_der_order=1),
+        # u_t = 1/((v+1)(u+1))
+        # v_t = 1/u
+        PDECase(
+            [(u, 1 / ((v + 1) * (u + 1))), (v, 1 / u)],
+            0,
+            max_der_order=1,
+        ),
+    ]
 
-    def test_branch_and_bound(self):
-        """
-        Test the branch and bound algorithm.
-        """
-        self.quadratization_test(search_alg="bnb", test_cases=self.test_cases_quad)
-
-    def test_nearest_neighbor(self):
-        """
-        Test the nearest neighbor algorithm.
-        """
-        self.quadratization_test(search_alg="inn", test_cases=self.test_cases_quad)
-
-    def test_rational_pdes(self):
-        """
-        Test PDEs quadratization for rational PDEs.
-        """
-        self.quadratization_test(search_alg="bnb", test_cases=self.test_cases_rat)
-
-    def test_symbolic_coeff(self):
-        """
-        Test PDEs quadratization for PDEs with symbolic coefficients.
-        """
-        self.quadratization_test(search_alg="inn", test_cases=self.test_cases_coeff_sym)
+    test_cases_coeff_sym = [
+        # u_t = omega * u**3 * u_xxx
+        PDECase([(u, omega * u**3 * D(u, x, 3))], 3),
+        # u_t = 1/(omega * (u + 1))
+        PDECase([(u, 1 / (omega * (u + 1)))], 1),
+    ]
+    return {
+        "t": t,
+        "x": x,
+        "helpers": helpers,
+        "quad": test_cases_quad,
+        "rat": test_cases_rat,
+        "coeff": test_cases_coeff_sym,
+    }
 
 
-if __name__ == "__main__":
-    unittest.main()
+def quadratization_test(search_alg, test_cases, data):
+    """
+    Main method to test the quadratization algorithm.
+    """
+    helpers = data["helpers"]
+    x = data["x"]
+    for test in test_cases:
+        print("\nTest case: ")
+        [print(f"Derivative({eq[0]}, t)", "=", eq[1]) for eq in test.func_eq]
+        poly_syst = quadratize(
+            test.func_eq,
+            test.n_diff,
+            search_alg=search_alg,
+            max_der_order=test.max_der_order,
+            nvars_bound=test.n_vars_bound,
+        )
+        assert isinstance(poly_syst, PDESys), (
+            f"Quadratization not found for {test.func_eq}"
+        )
+        quad_prop, frac_vars = poly_syst.get_aux_vars()
+        print(f"Quadratization: {quad_prop}")
+        print(f"Rational variables: {frac_vars}")
+
+        quad_prop_expr, frac_vars_expr = helpers.transform_new_vars(
+            quad_prop, frac_vars
+        )
+        new_vars, frac_vars, refac = helpers.rewrite_expr(
+            test, quad_prop_expr, frac_vars_expr, x
+        )
+
+        refac_new_vars, exprs_orig = helpers.construct_quadratic_PDE(
+            new_vars, frac_vars, test, refac, x
+        )
+        results = check_quadratization(test.func_eq, quad_prop, test.n_diff)
+        for i in range(len(exprs_orig)):
+            rewritten_result = results[1][i].rhs.subs(refac_new_vars)
+            assert (
+                simplify(
+                    helpers.convert_to_rational(exprs_orig[i])
+                    - helpers.convert_to_rational(rewritten_result.evalf())
+                )
+                == 0
+            ), (
+                f"Test failed: expressions are not equal for {exprs_orig[i]} \n"
+                + f"Equation: {results[1][i]} \n"
+                + f"Original expression: {expand(helpers.convert_to_rational(exprs_orig[i]))} \n"
+                + f"Quad expression: {helpers.convert_to_rational(rewritten_result.evalf())} \n"
+                + f"Substraction: {simplify(helpers.convert_to_rational(exprs_orig[i]) - helpers.convert_to_rational(rewritten_result.evalf()))}"
+            )
+
+
+def test_branch_and_bound(test_data):
+    """
+    Test the branch and bound algorithm.
+    """
+    quadratization_test("bnb", test_data["quad"], test_data)
+
+
+def test_nearest_neighbor(test_data):
+    """
+    Test the nearest neighbor algorithm.
+    """
+    quadratization_test("inn", test_data["quad"], test_data)
+
+
+def test_rational_pdes(test_data):
+    """
+    Test PDEs quadratization for rational PDEs.
+    """
+    quadratization_test("bnb", test_data["rat"], test_data)
+
+
+def test_symbolic_coeff(test_data):
+    """
+    Test PDEs quadratization for PDEs with symbolic coefficients.
+    """
+    quadratization_test("inn", test_data["coeff"], test_data)

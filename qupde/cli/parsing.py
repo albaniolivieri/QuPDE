@@ -13,7 +13,7 @@ def split_csv(raw: str, label: str) -> list[str]:
     return values
 
 
-def _normalize_symbols(expr: sp.Expr, symbol_map: dict[str, sp.Symbol]) -> sp.Expr: 
+def _normalize_symbols(expr: sp.Expr, symbol_map: dict[str, sp.Symbol]) -> sp.Expr:
     replacements = {
         sym: symbol_map[sym.name] for sym in expr.free_symbols if sym.name in symbol_map
     }
