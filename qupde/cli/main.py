@@ -41,7 +41,7 @@ def _emit_result(
     if output:
         summary_lines = [
             f"aux_vars: {aux_vars}",
-            f"frac_vars: {[1/var[1].as_expr() for var in frac_vars]}",
+            f"frac_vars: {[1 / var[1].as_expr() for var in frac_vars]}",
             f"quadratic_system_eqs: {quad_sys}",
         ]
         with open(output, "w", encoding="utf-8") as fh:

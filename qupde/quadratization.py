@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Union
 import sympy as sp
 from sympy.polys.rings import PolyElement
 from .pde_sys import PDESys
@@ -12,7 +12,7 @@ def quadratize(
     diff_ord: Optional[int] = None,
     sort_fun: Optional[str] = "by_fun",
     nvars_bound: Optional[int] = 10,
-    first_indep: Optional[sp.Symbol] = sp.symbols("t"),
+    first_indep: Optional[Union[sp.Symbol, str]] = sp.symbols("t"),
     max_der_order: Optional[int] = None,
     search_alg: Optional[str] = "bnb",  # 'bnb' or 'inn'
     printing: Optional[str] = "",  #'pprint' or 'latex'
@@ -23,7 +23,7 @@ def quadratize(
     Parameters
     ----------
     func_eq
-        Tuples with the symbol and equations of the PDE
+        Tuples with the unknown functions and corresponding equations of the PDE
     diff_ord : optional
         The differentiation order of the quadratization
     sort_fun : optional
@@ -48,6 +48,13 @@ def quadratize(
         a tuple with the best quadratization found, the variables introduced
         from rational expressions and the total number of traversed nodes
     """
+    if not func_eq:
+        raise ValueError("The differential equations list is empty")
+    if not isinstance(func_eq[0], tuple):
+        raise ValueError(
+            "The differential equations list must be a list of tuples of the type (Function, Expression)"
+        )
+
     undef_fun = [symbol for symbol, _ in func_eq]
     x_var = [
         symbol for symbol in undef_fun[0].free_symbols if symbol != first_indep
@@ -55,6 +62,11 @@ def quadratize(
 
     if diff_ord is None:
         diff_ord = 3 * get_sys_order([expr for _, expr in func_eq])
+    elif not isinstance(diff_ord, int) or diff_ord < 0:
+        raise ValueError("The differentiation order must be a non-negative integer")
+
+    if isinstance(first_indep, str):
+        first_indep = sp.symbols(first_indep)
 
     poly_syst = PDESys(func_eq, diff_ord, (first_indep, x_var))
     quad = []
@@ -69,10 +81,19 @@ def quadratize(
     else:
         raise ValueError(f"Unknown sorting function: {sort_fun}")
 
+    if not isinstance(nvars_bound, int) or nvars_bound <= 0:
+        raise ValueError(
+            "The bound on the number of variables must be a positive integer"
+        )
+    if not isinstance(max_der_order, int) or max_der_order <= 0:
+        raise ValueError("The maximum derivative order must be a positive integer")
+
     if search_alg == "inn":
         quad, nodes = nearest_neighbor(poly_syst, sort_fun, new_vars=[])
     elif search_alg == "bnb":
         quad, _, nodes = bnb([], nvars_bound, poly_syst, sort_fun, max_der_order)
+    else:
+        raise ValueError(f"Unknown search algorithm: {search_alg}")
     if quad is None:
         print("Quadratization not found")
         if show_nodes:
@@ -85,7 +106,12 @@ def quadratize(
     poly_syst.set_quad_sys(quad_syst)
 
     if printing:
+        if printing not in ["pprint", "latex"]:
+            raise ValueError(f"Unknown printing style: {printing}")
         print_quad(poly_syst, p_style=printing)
+
+    if not isinstance(show_nodes, bool):
+        raise ValueError("The show_nodes parameter must be a boolean")
 
     if show_nodes:
         print("Nodes traversed:", nodes)

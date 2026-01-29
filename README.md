@@ -238,6 +238,11 @@ Using `python` directly:
 python -m pytest
 ```
 
+If you want to see details about the tests while they are running, execute 
+```bash
+python -m pytest -s
+```
+
 ### Linting and formatting (Ruff)
 
 To check code style and automatically format the code (if you have installed the development dependencies, e.g. with `uv sync --group dev`), run:

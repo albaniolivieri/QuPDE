@@ -190,7 +190,18 @@ def remove_vars(
 
 
 def get_pol_diff_order(pol: PolyElement) -> int:
-    """ """
+    """Gets the derivative order of a polynomial
+
+    Parameters
+    ----------
+    pol
+        polynomial to check
+
+    Returns
+    -------
+    int
+        the derivative order of the polynomial (highest derivative order)
+    """
     pattern = r"^[A-Za-z0-9]+_(?:[A-Za-z][0-9]+|[0-9]+[A-Za-z][0-9]+)$"
     derivs = [x for x in pol.ring.gens if pol.diff(x) != 0]
     order = 0

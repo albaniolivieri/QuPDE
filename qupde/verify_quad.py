@@ -1,4 +1,3 @@
-from typing import Optional
 import sympy as sp
 from sympy.polys.rings import PolyElement
 from .utils import reduction_sparse
