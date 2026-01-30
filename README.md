@@ -100,7 +100,7 @@ new_pde.get_quad_sys()
 [Eq(w_0t, a*w_0*w_0x1 + 6*u_x1*u_x2 - w_0x3), Eq(u_t, a*u_x1*w_0 - u_x3)]
 ```
 
-Besides the PDE input, users can provide a regularity restriction for the quadratic transformation through the parameter _diff_ord_. This number determines the differential order of the quadratization: the maximum spatial-derivative order of the PDE's original variables allowed. By default, this value is set to the maximum order of derivatives found for the unknown functions in the PDE.
+Besides the PDE input, users can provide a regularity restriction for the quadratic transformation through the parameter _diff_ord_. This number determines the differential order of the quadratization: the maximum spatial-derivative order of the PDE's original variables allowed. By default, this value is set to three times the maximum order of derivatives found for the unknown functions in the PDE (the value at which the theory guarantees the existence of a quadratization).
 If we set this value in the previous example to 0
 
 ```python
