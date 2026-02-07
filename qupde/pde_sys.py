@@ -22,8 +22,10 @@ class PDESys:
 
     Attributes
     ----------
-    max_order : int
+    pde_order : int
         an integer representing the max order of derivatives in the system
+    diff_quad_order : int
+        the differential order of the quadratization
     first_indep : sp.Symbol
         a Symbol that represents the first independent variable
     sec_indep : sp.Symbol
@@ -67,8 +69,10 @@ class PDESys:
         Updates the `quad_sys` attribute with the quadratic PDE system
     get_aux_vars()
         Returns the polynomial and rational auxiliary variables
-    get_max_order()
-        Returns the max derivative order of the system
+    get_pde_order()
+        Returns the max derivative order of the PDE system
+    get_diff_quad_order()
+        Returns the differential order of the quadratization
     get_quad_sys()
         Returns the quadratic PDE system as a list of tuples
     differentiate_dict(named_new_vars)
@@ -99,11 +103,11 @@ class PDESys:
         new_vars : optional
             List of proposed new variables
         """
-        self.max_order = get_sys_order([expr for _, expr in pde_sys])
+        self.pde_order = get_sys_order([expr for _, expr in pde_sys])
 
         self.first_indep, self.sec_indep = vars_indep
         self.consts = []
-        self.order = n_diff
+        self.diff_quad_order = n_diff
 
         poly_syms, eqs_pol, new_vars_pol, frac_decomps = self.build_ring(
             pde_sys, new_vars
@@ -150,7 +154,7 @@ class PDESys:
                     D(fun, self.sec_indep, i),
                     sp.symbols(f"{fun.name}_{self.sec_indep.name}{i}"),
                 )
-                for i in range(self.max_order, 0, -1)
+                for i in range(self.pde_order, 0, -1)
             ] + [(fun, sp.symbols(fun.name))]
 
         symbols_list = [symbol for _, expr in func_eq for symbol in expr.free_symbols]
@@ -175,7 +179,7 @@ class PDESys:
             poly_vars.extend(
                 [
                     sp.symbols(f"{fun.name}_{self.sec_indep.name}{i}")
-                    for i in range(1, self.max_order + self.order + 1)
+                    for i in range(1, self.pde_order + self.diff_quad_order + 1)
                 ]
             )
 
@@ -192,7 +196,7 @@ class PDESys:
                 poly_vars.extend(
                     [
                         sp.symbols(f"q_{i}{self.sec_indep.name}{k}")
-                        for k in range(1, self.max_order + self.order + 1)
+                        for k in range(1, self.pde_order + self.diff_quad_order + 1)
                     ]
                 )
 
@@ -240,7 +244,7 @@ class PDESys:
         frac_ders = {"t_der": [], "x_der": []}
         last = 0
 
-        der_order = self.max_order + self.order
+        der_order = self.pde_order + self.diff_quad_order
         for i in range(len(func_eq)):
             for j in range(der_order):
                 # index of the x-derivatives
@@ -255,7 +259,7 @@ class PDESys:
                 dic_x[self.poly_vars[count]] = self.frac_decomps.diff_frac(
                     rels[i], dic_x
                 )
-                var_ord = self.order - get_pol_diff_order(rels[i][1])
+                var_ord = self.diff_quad_order - get_pol_diff_order(rels[i][1])
                 var_ord = max(var_ord, 0)
                 for j in range(1, var_ord + 1):
                     frac_ders["x_der"].append(
@@ -346,7 +350,7 @@ class PDESys:
         """
         return self.new_vars["new_vars"], self.new_vars["frac_vars"]
 
-    def get_max_order(self) -> int:
+    def get_pde_order(self) -> int:
         """Gets the max derivative order of the system
 
         Returns
@@ -354,7 +358,17 @@ class PDESys:
         int
             the max derivative order of the system
         """
-        return self.max_order
+        return self.pde_order
+
+    def get_diff_quad_order(self) -> int:
+        """Gets the quadratization order set for the system
+
+        Returns
+        -------
+        int
+            the quadratization order
+        """
+        return self.diff_quad_order
 
     def get_quad_sys(self):
         """Gets the quadratic PDE system
@@ -395,7 +409,7 @@ class PDESys:
                 )
             )
         for name, expr in named_new_vars:
-            var_ord = self.order - get_pol_diff_order(expr)
+            var_ord = self.diff_quad_order - get_pol_diff_order(expr)
             var_ord = max(var_ord, 0)
             for i in range(1, var_ord + 1):
                 deriv_x.append(

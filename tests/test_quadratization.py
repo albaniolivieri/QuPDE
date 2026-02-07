@@ -127,19 +127,18 @@ def test_data():
                 ),
                 (v, D(v, x) * u - 2 * D(v, x)),
             ],
-            2,
-            max_der_order=2,
+            3,
         ),
         # u_t = u**3 * u_xxx
-        PDECase([(u, u**3 * D(u, x, 3))], 3),
+        PDECase([(u, u**3 * D(u, x, 3))], 9),
         # u_t = u_x**3 + u**3
-        PDECase([(u, D(u, x) ** 3 + u**3)], 2, max_der_order=3),
+        PDECase([(u, D(u, x) ** 3 + u**3)], 3),
         # u_t = u_x**4
-        PDECase([(u, D(u, x) ** 4)], 3, max_der_order=2),
+        PDECase([(u, D(u, x) ** 4)], 3),
         # u_t = u_x**3 * u
-        PDECase([(u, D(u, x) ** 3 * u)], 2, max_der_order=3),
+        PDECase([(u, D(u, x) ** 3 * u)], 3),
         # u_t = u_x**3
-        PDECase([(u, D(u, x) ** 3)], 2, max_der_order=3),
+        PDECase([(u, D(u, x) ** 3)], 3),
     ]
 
     test_cases_rat = [
@@ -153,7 +152,7 @@ def test_data():
                     D(v, x) / v - round((math.pi), 5) * D(v, x),
                 ),
             ],
-            4,
+            1,
         ),
         # ut = 7.15666*D(u, x)/u - 5.677*D(u, x)
         PDECase(
@@ -173,20 +172,19 @@ def test_data():
                 (v, D(v, x, 2) / u**3 + u),
             ],
             2,
-            10,
         ),
         # u_t = 1/(5 * (u + 1))
         PDECase([(u, 1 / (5 * (u + 1)))], 1),
         # u_t = 1/(0.6 * u + 1.3)**2
-        PDECase([(u, 1 / (0.6 * u + 0.5) ** 2)], 3),
+        PDECase([(u, 1 / (0.6 * u + 0.5) ** 2)], 1),
         # u_t = - 1/(u + u**2) - u
-        PDECase([(u, 1 / (u**2 + 1))], 3),
+        PDECase([(u, 1 / (u**2 + 1))], 1),
         # u_t = - u_x/(u + 1)
-        PDECase([(u, D(u, x) / (u + 1))], 3),
+        PDECase([(u, D(u, x) / (u + 1))], 1),
         # u_t = 1/(u + 1)**2 + 1/(u - 1)
-        PDECase([(u, 1 / (u + 1) ** 2 + 1 / (u - 1))], 4, max_der_order=4),
+        PDECase([(u, 1 / (u + 1) ** 2 + 1 / (u - 1))], 1),
         # u_t = 1/(u**2) - 0.5 * u + 1
-        PDECase([(u, 1 / (u**2) - 0.5 * u + 1)], 4, max_der_order=4),
+        PDECase([(u, 1 / (u**2) - 0.5 * u + 1)], 1),
         # u_t = -u_xx/u - u**2 - u + 5
         # v_t = u/v - v + 5
         PDECase(
@@ -194,19 +192,14 @@ def test_data():
                 (u, -D(u, x, 2) / u - u**2 - u + 5),
                 (v, u / v - v + 5),
             ],
-            2,
-            max_der_order=10,
+            4,
             nvars_bound=6,
         ),
         # u_t = 1/((u+1)(u+2))
-        PDECase([(u, 1 / ((u + 1) * (u + 2)))], 0, max_der_order=1),
+        PDECase([(u, 1 / ((u + 1) * (u + 2)))], 0),
         # u_t = 1/((v+1)(u+1))
         # v_t = 1/u
-        PDECase(
-            [(u, 1 / ((v + 1) * (u + 1))), (v, 1 / u)],
-            0,
-            max_der_order=1,
-        ),
+        PDECase([(u, 1 / ((v + 1) * (u + 1))), (v, 1 / u)], 0),
     ]
 
     test_cases_coeff_sym = [

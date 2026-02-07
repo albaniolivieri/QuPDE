@@ -8,7 +8,7 @@ from qupde import quadratize
 The porous medium equation is a nonlinear diffusion equation that has applications in biology, notably in models of animal and
 insect dispersal, and some are in plasma physics. Another, as indicated by the name, is in the study of the ow of a gas in a 
 porous medium. The porous medium equation is given by:
-    u_t = Delta(u^m), m>1.
+    u_t = \Delta(u^m), m>1.
 References: 
     Vázquez, J. L. (2007). The porous medium equation: Mathematical theory. Clarendon Press.
     https://books.google.com/books?id=kZQUDAAAQBAJ

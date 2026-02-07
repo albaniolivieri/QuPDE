@@ -29,7 +29,9 @@ def pruning_rule_nvars(nvars: int, global_nvars: int) -> bool:
     return False
 
 
-def pruning_rule_order(new_vars: list[PolyElement], max_order: int, pde_sys) -> bool:
+def pruning_rule_order(
+    new_vars: list[PolyElement], max_order: int, pde_sys: PDESys
+) -> bool:
     """Pruning rule based on the maximum order of derivatives allowed.
 
     Parameters
@@ -38,16 +40,19 @@ def pruning_rule_order(new_vars: list[PolyElement], max_order: int, pde_sys) -> 
         List of proposed new variables
     max_order
         The maximum order allowed
+    pde_sys
+        PDE system
 
     Returns
     -------
     bool
         True if the maximum order of the derivatives in the new vars proposed is greater
-        than the maximum order allowed, False otherwise
+        than the maximum order allowed or the differential order of the quadratization, False otherwise
     """
     for var in new_vars:
-        if (get_pol_diff_order(var) > max_order) or (
-            (pde_sys.order - get_pol_diff_order(var)) < 0
+        var_order = get_pol_diff_order(var)
+        if (var_order > max_order) or (
+            (pde_sys.get_diff_quad_order() - (var_order + pde_sys.get_pde_order())) < 0
         ):
             return True
     return False
@@ -96,7 +101,7 @@ def bnb(
     best_nvars
         The minimum number of variables found in a quadratization
     poly_syst
-        The polynomial systemto quadratize
+        The polynomial system to quadratize
     sort_fun
         The function to sort the proposed new variables
     max_der_order
@@ -112,7 +117,7 @@ def bnb(
         return None, math.inf, 1
 
     if max_der_order is None:
-        if pruning_rule_order(new_vars, 3 * poly_syst.get_max_order(), poly_syst):
+        if pruning_rule_order(new_vars, poly_syst.get_diff_quad_order(), poly_syst):
             return None, math.inf, 1
     else:
         if pruning_rule_order(new_vars, max_der_order, poly_syst):

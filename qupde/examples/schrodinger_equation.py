@@ -5,13 +5,11 @@ import time
 from qupde import quadratize
 
 """
-The Harry Dym equation is an important dynamical equation that is integrable and finds applications 
-in several physical systems. The Dym equation represents a system in which dispersion and nonlinearity 
-are coupled together:
-    u_t = u^3 * u_xxx
+The nonlinear Schrödinger equation is a nonlinear partial differential equation, applicable to classical and quantum mechanics:
+    u_t = -1/2 * u_xx +  \kappa * u**3
 References:
-    Kumar, S., Tripathi, M. P., & Singh, O. P. (2013). A fractional model of Harry Dym equation and its 
-    approximate solution. Ain Shams Engineering Journal, 4(1), 111–115. https://doi.org/10.1016/j.asej.2012.07.001
+    Zakharov, V.E., Manakov, S.V. On the complete integrability of a nonlinear Schrödinger equation. 
+    Theor Math Phys 19, 551–559 (1974). https://doi.org/10.1007/BF01035568
 """
 
 t, x = sp.symbols("t x")
@@ -24,12 +22,12 @@ if __name__ == "__main__":
     times = []
     for i in range(10):
         ti = time.time()
-        quadratize([(u, u_t)], 3, search_alg="bnb")
+        quadratize([(u, u_t)], 2, search_alg="bnb")
         times.append(time.time() - ti)
     avg = statistics.mean(times[1:])
     std = statistics.stdev(times[1:])
 
-    quadratize([(u, u_t)], 3, search_alg="bnb", printing="latex")
+    quadratize([(u, u_t)], 2, search_alg="bnb", printing="pprint")
 
     print("Average time", avg)
     print("Standard deviation", std)

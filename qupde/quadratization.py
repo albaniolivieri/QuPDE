@@ -86,7 +86,7 @@ def quadratize(
             "The bound on the number of variables must be a positive integer"
         )
     if max_der_order is not None:
-        if not isinstance(max_der_order, int) or max_der_order <= 0:
+        if not isinstance(max_der_order, int) or max_der_order < 0:
             raise ValueError("The maximum derivative order must be a positive integer")
 
     if search_alg == "inn":
