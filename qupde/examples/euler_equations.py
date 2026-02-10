@@ -36,7 +36,12 @@ if __name__ == "__main__":
 
     ti = time.time()
 
-    quadratize([(rho, rho_t), (u, u_t), (p, p_t)], diff_ord=1, printing="pprint")
+    quadratize(
+        [(rho, rho_t), (u, u_t), (p, p_t)],
+        diff_ord=1,
+        printing="pprint",
+        show_nodes=True,
+    )
 
     print("Average time", avg)
     print("Standard deviation", std)

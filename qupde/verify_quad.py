@@ -1,4 +1,5 @@
 import sympy as sp
+import time
 from sympy.polys.rings import PolyElement
 from .utils import reduction
 from .fraction_decomp import FractionDecomp

@@ -42,18 +42,19 @@ if __name__ == "__main__":
     for i in range(10):
         ti = time.time()
         quadratize(
-            [(psi, psi_t), (theta, theta_t)], diff_ord=2, nvars_bound=5, max_der_order=1
+            [(psi, psi_t), (theta, theta_t)], diff_ord=2, nvars_bound=5, max_der_order=0
         )
         times.append(time.time() - ti)
-    avg = statistics.mean(times)
-    std = statistics.stdev(times)
+    avg = statistics.mean(times[1:])
+    std = statistics.stdev(times[1:])
 
     quadratize(
         [(psi, psi_t), (theta, theta_t)],
         diff_ord=2,
         nvars_bound=5,
-        max_der_order=1,
+        max_der_order=0,
         printing="pprint",
+        show_nodes=True,
     )
 
     print("Average time", avg)

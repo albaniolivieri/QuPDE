@@ -6,7 +6,7 @@ from qupde import quadratize
 
 """
 The nonlinear Schrödinger equation is a nonlinear partial differential equation, applicable to classical and quantum mechanics:
-    u_t = -1/2 * u_xx +  \kappa * u**3
+    u_t = -1/2 * u_xx + kappa * u**3
 References:
     Zakharov, V.E., Manakov, S.V. On the complete integrability of a nonlinear Schrödinger equation. 
     Theor Math Phys 19, 551–559 (1974). https://doi.org/10.1007/BF01035568
