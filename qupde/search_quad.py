@@ -50,9 +50,7 @@ def pruning_rule_order(
         than the maximum order allowed or the differential order of the quadratization, False otherwise
     """
     for var in new_vars:
-        # print('var', var)
         var_order = get_pol_diff_order(var)
-        # print("var_order", var_order)
         if (var_order > max_order) or (
             (pde_sys.get_diff_quad_order() - (var_order + pde_sys.get_pde_order())) < 0
         ):

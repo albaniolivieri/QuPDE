@@ -5,7 +5,7 @@ import statistics
 from qupde import quadratize
 
 """
-The compacton equation is generalization of the KdV equation in which the dispersion too is nonlinear. The solutions of this equation
+The compacton equation is a generalization of the KdV equation in which the dispersion too is nonlinear. The solutions of this equation
 are compactons, which are solitary waves with compact support. The compacton equation (K(m,n)) is given by:
     u_t = -(u^m)_x - (u^n)_x, m>0 and 1<n<=3.
 References: 

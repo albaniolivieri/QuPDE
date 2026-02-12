@@ -115,6 +115,5 @@ def parse_user_equations(
             )
 
         func_eq.append((func_applied[func_name], rhs))
-        # print('func_eq', func_eq)
 
     return func_eq, first_indep

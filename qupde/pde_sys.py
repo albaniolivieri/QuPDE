@@ -439,8 +439,6 @@ class PDESys:
         new_vars_t, new_vars_x = self.differentiate_dict(new_vars_named)
         deriv_t = new_vars_t + self.frac_ders["t_der"] + self.pde_eq
         poly_vars = list(filter(lambda x: str(x)[0] != "q", self.poly_vars))
-        
-        print('new_vars_named', new_vars_named)
 
         V = (
             [(1, self.poly_vars[0].ring(1))]

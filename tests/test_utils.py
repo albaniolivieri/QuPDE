@@ -5,10 +5,26 @@ from qupde.utils import get_pol_diff_order, diff_dict
 
 @pytest.fixture(scope="module")
 def test_data():
-    poly_syms = sp.symbols("u u_x1 u_x2 w_0 w_0x1 w_0x5 w_0x10 w_10x4 theta_x1 u_1_x4 u_phi1 \
-                           phi u_phi")
+    poly_syms = sp.symbols(
+        "u u_x1 u_x2 w_0 w_0x1 w_0x5 w_0x10 w_10x4 theta_x1 u_1_x4 u_phi1 \
+                           phi u_phi"
+    )
     R, poly_vars = sp.xring(poly_syms, sp.QQ)
-    u, u_x1, u_x2, w_0, w_0x1, w_0x5, w_0x10, w_10x4, theta_x1, u_1_x4, u_phi1, phi, u_phi = poly_vars
+    (
+        u,
+        u_x1,
+        u_x2,
+        w_0,
+        w_0x1,
+        w_0x5,
+        w_0x10,
+        w_10x4,
+        theta_x1,
+        u_1_x4,
+        u_phi1,
+        phi,
+        u_phi,
+    ) = poly_vars
     polys_diff_ord = [
         (u * u_x1, 1),
         (w_10x4, 4),
@@ -16,11 +32,11 @@ def test_data():
         (w_0 + w_0x5, 5),
         (w_0x10 * w_0x5, 10),
         (w_10x4 + w_0x10, 10),
-        (theta_x1, 1), 
+        (theta_x1, 1),
         (u_1_x4, 4),
-        (u_phi*u, 0),
+        (u_phi * u, 0),
         (u, 0),
-        (u_phi1, 1)
+        (u_phi1, 1),
     ]
     dic = {u: u_x1, u_x1: u_x2, w_0: w_0x1}
     polys_diff_dict = [
@@ -36,6 +52,7 @@ def test_get_pol_diff_order(test_data):
         assert test[1] == get_pol_diff_order(test[0]), (
             f"The derivative order of {test[0]} does not match, got {get_pol_diff_order(test[0])}"
         )
+
 
 def test_diff_dict(test_data):
     dic, test_polys = test_data["diff_dict"]
