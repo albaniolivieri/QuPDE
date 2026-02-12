@@ -101,7 +101,6 @@ def quadratize(
             return [], nodes
         else:
             return []
-
     poly_syst.set_new_vars(quad)
     _, quad_syst = poly_syst.try_make_quadratic()
     poly_syst.set_quad_sys(quad_syst)

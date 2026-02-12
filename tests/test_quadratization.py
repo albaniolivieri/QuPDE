@@ -139,6 +139,8 @@ def test_data():
         PDECase([(u, D(u, x) ** 3 * u)], 3),
         # u_t = u_x**3
         PDECase([(u, D(u, x) ** 3)], 3),
+        # u_t = u**2 * u_xx**2
+        PDECase([(u, u**2 * D(u, x, 2) ** 2)], 4),
     ]
 
     test_cases_rat = [

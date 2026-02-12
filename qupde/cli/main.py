@@ -87,7 +87,7 @@ def run(
     diff_ord: Optional[int] = typer.Option(
         None,
         "--diff-ord",
-        help="Override the differentiation order. Defaults to the example's suggested value.",
+        help="Override the differentiation order. Defaults to 3 times the maximum derivative order of the equation.",
     ),
     sort_fun: SortFun = typer.Option(
         SortFun.by_fun,
