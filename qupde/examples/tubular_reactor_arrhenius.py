@@ -43,7 +43,6 @@ if __name__ == "__main__":
             [(psi, psi_t), (theta, theta_t), (y, y_t)],
             diff_ord=2,
             nvars_bound=7,
-            max_der_order=0,
         )
         times.append(time.time() - ti)
 
@@ -54,7 +53,6 @@ if __name__ == "__main__":
         [(psi, psi_t), (theta, theta_t), (y, y_t)],
         diff_ord=2,
         nvars_bound=7,
-        max_der_order=0,
         printing="pprint",
         show_nodes=True,
     )

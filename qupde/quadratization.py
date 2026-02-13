@@ -72,13 +72,15 @@ def quadratize(
     quad = []
     nodes = 0
 
-    if sort_fun == "by_fun":
-        sort_fun = by_fun
-    elif sort_fun == "by_degree_order":
-        sort_fun = by_degree_order
-    elif sort_fun == "by_order_degree":
-        sort_fun = by_order_degree
-    else:
+    dic_sort_fun = {
+        "by_fun": by_fun,
+        "by_degree_order": by_degree_order,
+        "by_order_degree": by_order_degree,
+    }
+
+    try:
+        sort_fun = dic_sort_fun[sort_fun]
+    except KeyError:
         raise ValueError(f"Unknown sorting function: {sort_fun}")
 
     if not isinstance(nvars_bound, int) or nvars_bound <= 0:
@@ -106,8 +108,6 @@ def quadratize(
     poly_syst.set_quad_sys(quad_syst)
 
     if printing:
-        if printing not in ["pprint", "latex"]:
-            raise ValueError(f"Unknown printing style: {printing}")
         print_quad(poly_syst, p_style=printing)
 
     if not isinstance(show_nodes, bool):
@@ -155,6 +155,8 @@ def check_quadratization(
 
 
 def print_quad(poly_syst, p_style):
+    if p_style not in ["pprint", "latex"]:
+        raise ValueError(f"Unknown printing style: {p_style}")
     new_pde = poly_syst.get_quad_sys()
     new_vars_named = [
         (sp.symbols(f"w_{i}"), pol) for i, pol in enumerate(poly_syst.get_aux_vars()[0])

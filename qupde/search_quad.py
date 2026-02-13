@@ -73,7 +73,6 @@ def shrink_quad(quad_vars: list[PolyElement], poly_syst: PDESys) -> list[PolyEle
     list[PolyElement]
         a list with a quadratization of an equal or lesser order than the original
     """
-    final_vars = quad_vars
     subsets = chain.from_iterable(
         combinations(quad_vars, r) for r in range(1, len(quad_vars))
     )
@@ -82,7 +81,7 @@ def shrink_quad(quad_vars: list[PolyElement], poly_syst: PDESys) -> list[PolyEle
         res, _ = poly_syst.try_make_quadratic()
         if res:
             return list(var_group)
-    return final_vars
+    return quad_vars
 
 
 def bnb(
