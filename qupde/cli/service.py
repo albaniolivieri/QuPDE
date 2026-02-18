@@ -21,7 +21,6 @@ class QuadratizationRequest:
     sort_fun: SortFun = SortFun.by_fun
     nvars_bound: int = 10
     first_indep: Optional[str] = None
-    max_der_order: Optional[int] = None
     search_alg: SearchAlg = SearchAlg.bnb
     printing: Printing = Printing.none
     show_nodes: bool = False
@@ -59,7 +58,6 @@ def run_quadratization(req: QuadratizationRequest) -> QuadratizationResult:
             indep_symbol = sp.symbols(req.first_indep)
 
     selected_diff_ord = req.diff_ord
-    selected_max_der = req.max_der_order
 
     printing_arg = "" if req.printing == Printing.none else req.printing.value
 
@@ -71,7 +69,6 @@ def run_quadratization(req: QuadratizationRequest) -> QuadratizationResult:
         first_indep=(
             sp.symbols(req.first_indep) if req.first_indep is not None else indep_symbol
         ),
-        max_der_order=selected_max_der,
         search_alg=req.search_alg.value,
         printing=printing_arg,
         show_nodes=req.show_nodes,
