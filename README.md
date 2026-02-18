@@ -242,6 +242,12 @@ If you want to see details about the tests while they are running, execute
 ```bash
 python -m pytest -s
 ```
+In this module, we provided tests for:
+
+- The branch-and-bound search framework
+- The incremental nearest neighbor search framework
+- The module that handles quadratization for rational PDEs
+- PDEs with symbolic coefficients
 
 ### Linting and formatting (Ruff)
 
@@ -251,10 +257,3 @@ To check code style and automatically format the code (if you have installed the
 uv run ruff check .
 uv run ruff format .
 ```
-
-In this module, we provided tests for:
-
-- The branch-and-bound search framework
-- The incremental nearest neighbor search framework
-- The module that handles quadratization for rational PDEs
-- PDEs with symbolic coefficients

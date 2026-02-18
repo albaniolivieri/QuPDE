@@ -58,8 +58,8 @@ def run_quadratization(req: QuadratizationRequest) -> QuadratizationResult:
         if req.first_indep:
             indep_symbol = sp.symbols(req.first_indep)
 
-    selected_diff_ord = req.diff_ord if req.diff_ord is not None else None
-    selected_max_der = req.max_der_order if req.max_der_order is not None else None
+    selected_diff_ord = req.diff_ord
+    selected_max_der = req.max_der_order
 
     printing_arg = "" if req.printing == Printing.none else req.printing.value
 
