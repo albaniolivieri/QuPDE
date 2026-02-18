@@ -157,7 +157,7 @@ qupde run \
   --funcs "u, v" \
   --eq "Derivative(u(t,x), t) = Derivative(u(t,x),(x,2)) + v(t,x) - u(t,x)**3" \
   --eq "Derivative(v(t,x), t) = v(t,x)**2 + u(t,x)" \
-  --diff-ord 2 --max-der-order 2 --printing pprint
+  --diff-ord 2 --printing pprint
 
 # Mathematica-style syntax
 qupde run \

@@ -10,10 +10,9 @@ from qupde.pde_sys import PDESys
 
 
 class PDECase:
-    def __init__(self, func_eq, n_diff, max_der_order=None, nvars_bound=10) -> None:
+    def __init__(self, func_eq, n_diff, nvars_bound=10) -> None:
         self.func_eq = func_eq
         self.n_diff = n_diff
-        self.max_der_order = max_der_order
         self.n_vars_bound = nvars_bound
 
 
@@ -235,7 +234,6 @@ def quadratization_test(search_alg, test_cases, data):
             test.func_eq,
             test.n_diff,
             search_alg=search_alg,
-            max_der_order=test.max_der_order,
             nvars_bound=test.n_vars_bound,
         )
         assert isinstance(poly_syst, PDESys), (

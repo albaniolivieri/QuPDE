@@ -108,12 +108,6 @@ def run(
         help="Symbol to use as the first independent variable (time).",
         rich_help_panel="Variables",
     ),
-    max_der_order: Optional[int] = typer.Option(
-        None,
-        "--max-der-order",
-        help="Maximum derivative order allowed in new variables.",
-        rich_help_panel="Search configuration",
-    ),
     search_alg: SearchAlg = typer.Option(
         SearchAlg.bnb,
         "--search-alg",
@@ -161,7 +155,6 @@ def run(
                 sort_fun=sort_fun,
                 nvars_bound=nvars_bound,
                 first_indep=first_indep,
-                max_der_order=max_der_order,
                 search_alg=search_alg,
                 printing=printing,
                 show_nodes=show_nodes,
@@ -195,7 +188,6 @@ def run(
             diff_ord=diff_ord if diff_ord is not None else example_cfg.diff_ord,
             sort_fun=sort_fun,
             nvars_bound=nvars_bound,
-            max_der_order=max_der_order,
             search_alg=search_alg,
             printing=printing,
             show_nodes=show_nodes,

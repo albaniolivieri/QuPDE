@@ -13,12 +13,11 @@ def quadratize(
     sort_fun: Optional[str] = "by_fun",
     nvars_bound: Optional[int] = 10,
     first_indep: Optional[Union[sp.Symbol, str]] = sp.symbols("t"),
-    max_der_order: Optional[int] = None,
     search_alg: Optional[str] = "bnb",  # 'bnb' or 'inn'
     printing: Optional[str] = "",  #'pprint' or 'latex'
     show_nodes: bool = False,
 ) -> tuple[list[PolyElement], list[PolyElement], int]:
-    """Quadratizes a given PDE
+    """Finds a quadratization for a given PDE
 
     Parameters
     ----------
@@ -32,8 +31,6 @@ def quadratize(
         The maximum number of variables in the quadratization
     first_indep : optional
         The first independent variable of the PDE
-    max_der_order : optional
-        The maximum order of derivatives allowed in the new variables
     search_alg : optional
         The search algorithm to use. 'bnb' for branch and bound, 'nn' for incremental nearest neighbor
     print_quad : optional
@@ -87,14 +84,11 @@ def quadratize(
         raise ValueError(
             "The bound on the number of variables must be a positive integer"
         )
-    if max_der_order is not None:
-        if not isinstance(max_der_order, int) or max_der_order < 0:
-            raise ValueError("The maximum derivative order must be a positive integer")
 
     if search_alg == "inn":
         quad, nodes = nearest_neighbor(poly_syst, sort_fun, new_vars=[])
     elif search_alg == "bnb":
-        quad, _, nodes = bnb([], nvars_bound, poly_syst, sort_fun, max_der_order)
+        quad, _, nodes = bnb([], nvars_bound, poly_syst, sort_fun)
     else:
         raise ValueError(f"Unknown search algorithm: {search_alg}")
     if quad is None:
