@@ -470,8 +470,6 @@ class PDESys:
         list[PolyElement]
             the proposed new variables
         """
-        list_vars = []
-
         min_monom = (0,) * len(self.NS_list[0][1].leading_expv())
 
         for ns_pol in self.NS_list:
@@ -479,7 +477,7 @@ class PDESys:
         if monoms:
             min_monom = min(monoms, key=sum)
 
-        list_vars += get_decompositions(min_monom)
+        list_vars = get_decompositions(min_monom)
 
         list_vars = list(
             map(

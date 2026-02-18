@@ -1,5 +1,4 @@
 import sympy as sp
-import time
 from sympy.polys.rings import PolyElement
 from .utils import reduction
 from .fraction_decomp import FractionDecomp
@@ -51,7 +50,7 @@ def is_quadratization(
 
     if NS != []:
         # for printing problematic polynomials, uncomment next line:
-        # for i in range(len(NS)): pprint(f'NS for expr {NS[i][0]}: {NS[i][1]}')
+        # for i in range(len(NS)): sp.pprint(f'NS for expr {NS[i][0]}: {NS[i][1]}')
         return (False, NS)
     return (True, quad)
 
