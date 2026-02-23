@@ -75,7 +75,7 @@ def run_quadratization(req: QuadratizationRequest) -> QuadratizationResult:
     )
 
     if result == []:
-        raise QuadratizationError("Quadratization not found.")
+        raise QuadratizationError()
 
     poly_syst, traversed = (result, None)
     if req.show_nodes and isinstance(result, tuple):
