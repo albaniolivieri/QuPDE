@@ -1,5 +1,6 @@
 # QuPDE
-
+<!-- [![arXiv](https://img.shields.io/badge/arXiv-2405.04731-b31b1b.svg)](https://arxiv.org/abs/2405.04731) -->
+[![DOI](https://zenodo.org/badge/DOI/Zenodo.svg)](https://doi.org/10.5281/zenodo.18750665)
 QuPDE is a Python library that finds a quadratic transformation (quadratization) for nonquadratic PDEs built using Sympy objects. QuPDE handles spatially one-dimensional PDEs that are polynomial or rational.
 
 ## Table of Contents
