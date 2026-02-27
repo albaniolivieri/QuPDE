@@ -30,7 +30,7 @@ def pruning_rule_nvars(nvars: int, global_nvars: int) -> bool:
 
 
 def pruning_rule_order(
-    new_vars: list[PolyElement], max_order: int, pde_sys: PDESys
+    new_vars: list[PolyElement], pde_sys: PDESys
 ) -> bool:
     """Pruning rule based on the maximum order of derivatives allowed.
 
@@ -51,9 +51,7 @@ def pruning_rule_order(
     """
     for var in new_vars:
         var_order = get_pol_diff_order(var)
-        if (var_order > max_order) or (
-            (pde_sys.get_diff_quad_order() - (var_order + pde_sys.get_pde_order())) < 0
-        ):
+        if (pde_sys.get_diff_quad_order() - (var_order + pde_sys.get_pde_order())) < 0:
             return True
     return False
 
@@ -102,9 +100,7 @@ def bnb(
         The polynomial system to quadratize
     sort_fun
         The function to sort the proposed new variables
-    max_der_order
-        The maximum order of derivatives allowed in the quadratic transformation
-
+        
     Returns
     -------
     tuple[list[PolyElement], int, int]
@@ -113,9 +109,9 @@ def bnb(
     """
     if pruning_rule_nvars(len(new_vars), best_nvars):
         return None, math.inf, 1
-
-    if pruning_rule_order(new_vars, poly_syst.get_diff_quad_order(), poly_syst):
-        return None, math.inf, 1
+    
+    if pruning_rule_order(new_vars, poly_syst):
+            return None, math.inf, 1
 
     poly_syst.set_new_vars(new_vars)
     result_quad = poly_syst.try_make_quadratic()
