@@ -8,7 +8,7 @@ from qupde import quadratize
 The Harry Dym equation is an important dynamical equation that is integrable and finds applications 
 in several physical systems. The Dym equation represents a system in which dispersion and nonlinearity 
 are coupled together:
-    u_t = u^3 * u_xxx
+    u_t = u^3 * u_xxx.
 References:
     Kumar, S., Tripathi, M. P., & Singh, O. P. (2013). A fractional model of Harry Dym equation and its 
     approximate solution. Ain Shams Engineering Journal, 4(1), 111–115. https://doi.org/10.1016/j.asej.2012.07.001

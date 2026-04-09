@@ -7,7 +7,7 @@ from qupde import quadratize
 """
 The Brusselator system was developed to model morphogenesis and pattern formation in chemical reactions:
     u_t = d_1 u_x + lambda * (1 - (b + 1) * u + b * u^2 * v),
-    v_t = d_2 v_x + lambda * a^2 * (u - u^2 * v)
+    v_t = d_2 v_x + lambda * a^2 * (u - u^2 * v).
 References:
     Li, B., & Wang, M.-x. (2008). Diffusion-driven instability and Hopf bifurcation in Brusselator system. 
     Applied Mathematics and Mechanics, 29(6), 825–832. https://doi.org/10.1007/s10483-008-0614-y

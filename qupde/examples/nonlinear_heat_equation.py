@@ -7,7 +7,7 @@ from qupde import quadratize
 """
 The 1D nonlinear heat equation is one the most widely studied models, and it presents a rich mathematical 
 structure for studying “blow-up” functions:
-    u_t = u_xx + u^p, p>1
+    u_t = u_xx + u^p, p>1.
 References: 
     Bandle, C., & Brunner, H. (1998). Blowup in diffusion equations: A survey. Journal of Computational and 
     Applied Mathematics, 97(1–2), 3–22. https://doi.org/10.1016/S0377-0427(98)00100-9

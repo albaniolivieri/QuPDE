@@ -7,7 +7,7 @@ from qupde import quadratize
 """
 The Schnakenberg equations are evolution equations for reaction-diffusion systems with cross-diffusion:
     u_t = D_u u_xx + D_uv * v_{xx} + k_1 * a_1 - k_2 * u + k_3 * u^2 * v,
-    v_t = D_v v_xx + D_vu * u_xx + k_4 * b_1 - k_3 * u^2v
+    v_t = D_v v_xx + D_vu * u_xx + k_4 * b_1 - k_3 * u^2v.
 References:
     Madzvamuse, A., Ndakwo, H. S., & Barreira, R. (2014). Cross-diffusion-driven instability for 
     reaction-diffusion systems: Analysis and simulations. Journal of Mathematical Biology, 70(4), 

@@ -8,7 +8,7 @@ from qupde import quadratize
 The non-adiabatic tubular reactor model describes species concentration and temperature evolution in a single reaction:
     psi_t = (1/Pe) * u_ss - u_s - D * psi * f(theta),
     theta_t = (1/Pe) * theta_ss - theta_s - beta * (theta + theta_ref) + B * D * psi * f(theta),
-where f(theta) = exp(psi-psi/theta)
+where f(theta) = exp(psi-psi/theta).
 References:
     Heinemann, R. F., & Poore, A. B. (1981). Multiplicity, stability, and oscillatory dynamics of the tubular reactor. 
     Chemical Engineering Science, 36(8), 1411–1419. https://doi.org/10.1016/0009-2509(81)80175-3

@@ -7,7 +7,7 @@ from qupde import quadratize
 """
 The Schlögl model is a simple example of a chemical reaction system that exhibits bistability. 
 We show a version of this model without input functions: 
-    u_t = u_xx - k * (u - u_1) * (u - u_2) * (u - u_3)
+    u_t = u_xx - k * (u - u_1) * (u - u_2) * (u - u_3).
 References: 
     Buchholz, R., Engel, H., Kammann, E., & Tröltzsch, F. (2013). On the optimal control of the
     Schlögl-model. Computational Optimization and Applications, 56(1), 153–185. https://doi.org/10.1007/s10589-013-9550-y

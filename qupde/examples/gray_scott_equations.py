@@ -7,7 +7,7 @@ from qupde import quadratize
 """
 The Gray-Scott equations are a system of reaction-diffusion equations that model the interaction of two generic chemical species:
     u_t = epsilon_1 * Delta(u) - u * v^2 + F(1 - u)
-    v_t = epsilon_2 * Delta(v) + u * v^2 - (F + k) * v
+    v_t = epsilon_2 * Delta(v) + u * v^2 - (F + k) * v.
 References:
     P. Gray, S.K. Scott (1983). Autocatalytic reactions in the isothermal, continuous stirred tank reactor: Isolas and other forms of
     multistability, Chemical Engineering Science, Volume 38.
