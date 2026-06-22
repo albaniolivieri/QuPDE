@@ -120,13 +120,13 @@ class FractionDecomp:
             QQc = sp.FractionField(sp.QQ, consts)
             R, _ = sp.xring(pol_syms + q_symb, QQc)
             groeb_base = sp.groebner(
-                groeb_rels, pol_syms + q_symb + consts, order="lex"
+                groeb_rels, pol_syms + q_symb, order="lex"
             )
             groeb_rels = [R(rel.as_expr()) for rel in groeb_base._basis]
             for k in range(len(pde_sys)):
                 pde_sys[k] = (
                     pde_sys[k][0],
-                    R(pde_sys[k][1]).div(groeb_rels)[1].as_expr() / d_factor[0],
+                    R(sp.nsimplify(pde_sys[k][1], rational=True)).div(groeb_rels)[1].as_expr() / d_factor[0],
                 )
         q_vars_def = list(zip(q_vars_def.keys(), q_vars_def.values()))
         groeb_rels = [rel.as_expr() for rel in groeb_rels]

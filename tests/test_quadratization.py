@@ -1,6 +1,6 @@
 import math
 import pytest
-from sympy import symbols, simplify, expand, nsimplify, Function
+from sympy import symbols, simplify, expand, nsimplify, Function, sin
 from sympy import Derivative as D
 
 from qupde import quadratize
@@ -112,6 +112,7 @@ def test_data():
     u = Function("u")(t, x)
     v = Function("v")(t, x)
     omega = symbols("omega", constant=True)
+    alpha = symbols("alpha", constant=True)
 
     helpers = QuadratizationHelpers()
 
@@ -207,9 +208,15 @@ def test_data():
 
     test_cases_coeff_sym = [
         # u_t = omega * u**3 * u_xxx
-        PDECase([(u, omega * u**3 * D(u, x, 3))], 3),
+        PDECase([(u, omega * u**3 * D(u, x, 3))], 4),
         # u_t = 1/(omega * (u + 1))
         PDECase([(u, 1 / (omega * (u + 1)))], 1),
+        # # u_t = 1/(omega * (u + 1))
+        PDECase([(u, 1 / ((2**omega) * (u + omega)))], 1),
+        # # u_t = 1/(omega * (u + 1))
+        PDECase([(u, 1 / ((u + 2**omega)))], 1),
+        PDECase([(u, 1 / ((u + sin(omega))))], 1),
+        PDECase([(u, u**3 + omega**alpha * alpha**2)], 1),
     ]
     return {
         "t": t,
@@ -253,9 +260,9 @@ def quadratization_test(search_alg, test_cases, data):
         refac_new_vars, exprs_orig = helpers.construct_quadratic_PDE(
             new_vars, frac_vars, test, refac, x
         )
-        results = check_quadratization(test.func_eq, quad_prop, test.n_diff)
+        _, results = check_quadratization(test.func_eq, quad_prop, test.n_diff)
         for i in range(len(exprs_orig)):
-            rewritten_result = results[1][i].rhs.subs(refac_new_vars)
+            rewritten_result = results[i].rhs.subs(refac_new_vars)
             assert (
                 simplify(
                     helpers.convert_to_rational(exprs_orig[i])
@@ -264,7 +271,7 @@ def quadratization_test(search_alg, test_cases, data):
                 == 0
             ), (
                 f"Test failed: expressions are not equal for {exprs_orig[i]} \n"
-                + f"Equation: {results[1][i]} \n"
+                + f"Equation: {results[i]} \n"
                 + f"Original expression: {expand(helpers.convert_to_rational(exprs_orig[i]))} \n"
                 + f"Quad expression: {helpers.convert_to_rational(rewritten_result.evalf())} \n"
                 + f"Substraction: {simplify(helpers.convert_to_rational(exprs_orig[i]) - helpers.convert_to_rational(rewritten_result.evalf()))}"
@@ -296,4 +303,4 @@ def test_symbolic_coeff(test_data):
     """
     Test PDEs quadratization for PDEs with symbolic coefficients.
     """
-    quadratization_test("inn", test_data["coeff"], test_data)
+    quadratization_test("bnb", test_data["coeff"], test_data)

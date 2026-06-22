@@ -118,7 +118,6 @@ class PDESys:
         self.pde_eq = eqs_pol
         self.new_vars = new_vars_pol
         self.NS_list = []
-
         dic_t, dic_x, frac_ders = self.get_dics(pde_sys)
 
         self.dic_t = dic_t
@@ -186,8 +185,12 @@ class PDESys:
         # we substite derivatives symbols and if there is an expr with a rational function,
         # we convert it to the form p/q
         func_eq = [(lhs, sp.cancel(rhs.subs(der_subs))) for lhs, rhs in func_eq]
-
-        frac_decomp = FractionDecomp(func_eq, poly_vars, constants)
+        
+        func_eq, pol_consts = self.polynomialize_consts(func_eq)
+        self.pol_consts = [(b, a) for a, b in pol_consts]
+        aux_consts = [const[1] for const in pol_consts]
+        
+        frac_decomp = FractionDecomp(func_eq, poly_vars, constants + aux_consts)
 
         if frac_decomp:
             func_eq = frac_decomp.pde
@@ -200,7 +203,7 @@ class PDESys:
                     ]
                 )
 
-        QQc = sp.FractionField(sp.QQ, constants)
+        QQc = sp.FractionField(sp.QQ, constants + aux_consts)
         R, pol_sym = sp.xring(poly_vars, QQc)
 
         frac_decomp.rels_as_poly(R)
@@ -297,8 +300,47 @@ class PDESys:
             count += der_order + 1
 
         return dic_t, dic_x, frac_ders
+    
+    def polynomialize_consts(self, func_eq):
+    # here: for expr in func_eq look for nonpolynomial and nonrational functions involving elements in constants 
+        count = 0
+        j = 0
+        new_cons_vars = []
+        while j in range(len(func_eq)):
+            while True:
+                new_var = self.get_new_const_vars(func_eq[j][1])
+                if not new_var:
+                    break
+                new_cons_vars.append((new_var, sp.symbols(f'cons_{count}')))
+                for i in range(len(func_eq)):
+                    func_eq[i] = (func_eq[i][0], func_eq[i][1].subs(new_cons_vars))     
+                count += 1
+            j += 1
+        return func_eq, new_cons_vars
+        
+        
+    def get_new_const_vars(self, expr, new_var = None):
+        args = expr.args
+        non_pol_funcs = [sp.exp, sp.sin, sp.cos, sp.Pow]
+        if bool(expr.free_symbols & set(self.consts)):
+            if expr.func in non_pol_funcs:
+                if expr.func == sp.Pow:
+                    if type(args[1]) != sp.Symbol:
+                        if args[1] == int(args[1]): 
+                            return self.get_new_const_vars(args[0], new_var)
+                for arg in args:
+                    return self.get_new_const_vars(arg, expr)
+            else: 
+                if expr.func == sp.Symbol or expr.func == sp.Integer:
+                    return new_var
+                else: 
+                    for arg in args:
+                        new_var = self.get_new_const_vars(arg, new_var)
+                if new_var != None: return new_var      
+        return new_var
+        
 
-    def set_new_vars(self, new_vars: list[PolyElement]) -> None:
+    def set_new_vars(self, pol_vars: list[PolyElement], frac_vars: Optional[list[sp.Expr]] = None) -> None:
         """Sets with a new value the new_vars attribute
 
         Parameters
@@ -310,7 +352,9 @@ class PDESys:
         -------
         None
         """
-        self.new_vars["new_vars"] = new_vars
+        self.new_vars["new_vars"] = pol_vars
+        if frac_vars != None:
+            self.new_vars["frac_vars"] = frac_vars
 
     def set_NS_list(self, NS_list: list[tuple[sp.Symbol, PolyElement]]) -> None:
         """Sets with a new value the NS_list attribute
@@ -448,7 +492,7 @@ class PDESys:
             + new_vars_x
             + self.frac_ders["x_der"]
         )
-
+        print("new_vars_named", new_vars_named)
         result = is_quadratization(V, deriv_t, self.frac_decomps)
         if not result[0]:
             self.NS_list = result[1]

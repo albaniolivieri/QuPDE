@@ -33,7 +33,7 @@ def quadratize(
         The first independent variable of the PDE
     search_alg : optional
         The search algorithm to use. 'bnb' for branch and bound, 'nn' for incremental nearest neighbor
-    print_quad : optional
+    printing : optional
         If 'pprint', prints the quadratization in a human-readable format.
         If 'latex', prints the quadratization in LaTeX format.
     show_nodes : optional
@@ -52,9 +52,9 @@ def quadratize(
             "The differential equations list must be a list of tuples of the type (Function, Expression)"
         )
 
-    undef_fun = [symbol for symbol, _ in func_eq]
+    unkn_fun = [symbol for symbol, _ in func_eq]
     x_var = [
-        symbol for symbol in undef_fun[0].free_symbols if symbol != first_indep
+        symbol for symbol in unkn_fun[0].free_symbols if symbol != first_indep
     ].pop()
 
     if diff_ord is None:
@@ -99,6 +99,11 @@ def quadratize(
             return []
     poly_syst.set_new_vars(quad)
     _, quad_syst = poly_syst.try_make_quadratic()
+    _, orig_frac_vars = poly_syst.get_aux_vars()
+    frac_vars = [(name, def_var.as_expr().subs(poly_syst.pol_consts)) for name, def_var in orig_frac_vars]
+    poly_syst.set_new_vars([new_var.as_expr().subs(poly_syst.pol_consts) for new_var in quad], frac_vars)
+    for i in range(len(quad_syst)):
+        quad_syst[i] = sp.Eq(quad_syst[i].lhs, quad_syst[i].rhs.subs(poly_syst.pol_consts))
     poly_syst.set_quad_sys(quad_syst)
 
     if printing:
@@ -144,8 +149,10 @@ def check_quadratization(
     ].pop()
 
     poly_syst = PDESys(func_eq, n_diff, (first_indep, x_var), new_vars)
-
-    return poly_syst.try_make_quadratic()
+    bool_r, quad_rep = poly_syst.try_make_quadratic()
+    quadratic_sys = [sp.Eq(quad_rep[i].lhs, quad_rep[i].rhs.subs(poly_syst.pol_consts)) for i in range(len(quad_rep))]
+    
+    return bool_r, quadratic_sys
 
 
 def print_quad(poly_syst, p_style):
