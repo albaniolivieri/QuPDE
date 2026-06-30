@@ -246,7 +246,9 @@ def quadratization_test(search_alg, test_cases, data):
         assert isinstance(poly_syst, PDESys), (
             f"Quadratization not found for {test.func_eq}"
         )
-        quad_prop, frac_vars = poly_syst.get_aux_vars()
+        aux_vars = poly_syst.get_aux_vars()
+        quad_prop = aux_vars["new_vars"]
+        frac_vars = aux_vars["frac_vars"]
         print(f"Quadratization: {quad_prop}")
         print(f"Rational variables: {frac_vars}")
 

@@ -81,7 +81,10 @@ def run_quadratization(req: QuadratizationRequest) -> QuadratizationResult:
     if req.show_nodes and isinstance(result, tuple):
         poly_syst, traversed = result
 
-    aux_vars, frac_vars = poly_syst.get_aux_vars()
+    quad_vars = poly_syst.get_aux_vars()
+    
+    aux_vars= quad_vars["new_vars"]
+    frac_vars = quad_vars["frac_vars"]
     quad_sys = poly_syst.get_quad_sys()
 
     return QuadratizationResult(

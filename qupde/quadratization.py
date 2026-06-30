@@ -97,11 +97,11 @@ def quadratize(
             return [], nodes
         else:
             return []
-    poly_syst.set_new_vars(quad)
+    poly_syst.set_new_vars(pol_vars=quad)
     _, quad_syst = poly_syst.try_make_quadratic()
-    _, orig_frac_vars = poly_syst.get_aux_vars()
+    orig_frac_vars = poly_syst.get_aux_vars()["frac_vars"]
     frac_vars = [(name, def_var.as_expr().subs(poly_syst.pol_consts)) for name, def_var in orig_frac_vars]
-    poly_syst.set_new_vars([new_var.as_expr().subs(poly_syst.pol_consts) for new_var in quad], frac_vars)
+    poly_syst.set_new_vars(pol_vars=[new_var.as_expr().subs(poly_syst.pol_consts) for new_var in quad], frac_vars=frac_vars)
     for i in range(len(quad_syst)):
         quad_syst[i] = sp.Eq(quad_syst[i].lhs, quad_syst[i].rhs.subs(poly_syst.pol_consts))
     poly_syst.set_quad_sys(quad_syst)
@@ -155,12 +155,28 @@ def check_quadratization(
     return bool_r, quadratic_sys
 
 
-def print_quad(poly_syst, p_style):
+def print_quad(poly_syst: PDESys, p_style: str):
+    """Prints the quadratization result, including the auxiliary variables
+    and the quadratic PDE system.
+
+    Parameters
+    ----------
+    poly_syst
+        The polynomial system containing the quadratization result
+    p_style
+        The printing style. 'pprint' for human-readable format,
+        'latex' for LaTeX format
+
+    Raises
+    ------
+    ValueError
+        If `p_style` is not 'pprint' or 'latex'
+    """
     if p_style not in ["pprint", "latex"]:
         raise ValueError(f"Unknown printing style: {p_style}")
     new_pde = poly_syst.get_quad_sys()
     new_vars_named = [
-        (sp.symbols(f"w_{i}"), pol) for i, pol in enumerate(poly_syst.get_aux_vars()[0])
+        (sp.symbols(f"w_{i}"), pol) for i, pol in enumerate(poly_syst.get_aux_vars()["new_vars"])
     ]
     print("\nQuadratization:")
     for name, var in new_vars_named:
@@ -168,7 +184,7 @@ def print_quad(poly_syst, p_style):
             print(sp.latex(sp.Eq(name, var.as_expr())))
         else:
             sp.pprint(sp.Eq(name, var.as_expr()))
-    for name, var in poly_syst.get_aux_vars()[1]:
+    for name, var in poly_syst.get_aux_vars()["frac_vars"]:
         if p_style == "latex":
             print(sp.latex(sp.Eq(name, 1 / var.as_expr())))
         else:

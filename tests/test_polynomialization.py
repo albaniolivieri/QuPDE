@@ -10,21 +10,19 @@ from qupde.pde_sys import PDESys
 
 
 class PDECase:
-    def __init__(self, func_eq) -> None:
+    def __init__(self, func_eq, is_polynomial=False) -> None:
         self.func_eq = func_eq
+        self.is_polynomial = is_polynomial
 
 
 class PolynomializationHelpers:
     def rewrite_new_vars(self, aux_vars):
-        """
-        Transform the new variables to sympy expressions.
-        """
         refac = []
         new_vars = []
         for aux_var in aux_vars: 
-            refac.append(aux_var) 
+            refac.append((aux_var[1], aux_var[0])) 
             aux_var_re = aux_var[0].subs(refac)
-            new_vars.append((aux_var_re, aux_var[1]))
+            new_vars.append((aux_var[1], aux_var_re))
         return new_vars
 
     def differentiate_t(self, funcs_eqs, aux_vars):
@@ -34,8 +32,8 @@ class PolynomializationHelpers:
         deriv_t = []
         refac = [(D(eq[0], symbols("t")), eq[1]) for eq in funcs_eqs]
         for i in range(len(aux_vars)):
-            pt = D(aux_vars[i][0], symbols("t")).doit().subs(refac)
-            deriv_t.append((symbols(f"{aux_vars[i][0]}_t"), pt.doit()))
+            pt = D(aux_vars[i][1], symbols("t")).doit().subs(refac)
+            deriv_t.append((symbols(f"{aux_vars[i][1]}_t"), pt.doit()))
         return deriv_t
 
     def rewrite_expr(self, test_case, new_vars, frac_vars):
@@ -91,10 +89,14 @@ def test_data():
 
         # u_t = u_xx - sin(u)
         PDECase([(u, D(u, x, 2) - sin(u))]),  
-        # PDECase()
+        PDECase([(u, exp(u) * sin(u) * D(u, x))]),
+        PDECase([(u, exp(sin(u)))]),
+        PDECase([(u, sin(u)**3)]),
+        PDECase([(u, exp(omega) * u)], is_polynomial=True),
     ]
     
     test_cases_rat = [
+        PDECase([(u, 1 / u**2)], is_polynomial=True), 
         PDECase([(u, 1 / (1 + exp(omega*u - 1)))]),  
         # u_t = k_1 * (s_1 - u) * (K_1**n_1 / (K_1**n_1 + z**n_1)) - k_2 * u
         # v_t = k_3 * (s_2 - v) * u * (1 + (alpha * z**n_2) / (K_2**n_2 + z**n_2)) - k_4 * v
@@ -128,6 +130,12 @@ def polynomialization_test(test_cases, data, is_rat):
             test.func_eq,
             is_rat=is_rat
         )
+        print('poly_syst, aux_vars', poly_syst, aux_vars)
+        if test.is_polynomial:
+            assert len(aux_vars) == 0, (
+                f"Expected no new variables for polynomial system, got {aux_vars}"
+            )
+            continue
         assert (len(aux_vars) != 0), (
             f"Polynomialization not found for {test.func_eq}"
         )
@@ -137,7 +145,7 @@ def polynomialization_test(test_cases, data, is_rat):
         exprs_orig = test.func_eq
         exprs_orig += helpers.differentiate_t(test.func_eq, poly_vars) 
         
-        results = [(eq[0], eq[1].subs(aux_vars)) for eq in poly_syst]
+        results = [(eq[0], eq[1].subs(poly_vars)) for eq in poly_syst]
         
         for i in range(len(exprs_orig)):
             result = results[i][1].evalf()

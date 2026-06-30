@@ -68,7 +68,7 @@ class PDESys:
     set_quad_sys(quad_sys)
         Updates the `quad_sys` attribute with the quadratic PDE system
     get_aux_vars()
-        Returns the polynomial and rational auxiliary variables
+        Returns the auxiliary variables
     get_pde_order()
         Returns the max derivative order of the PDE system
     get_diff_quad_order()
@@ -90,6 +90,7 @@ class PDESys:
         n_diff: int,
         vars_indep: sp.Symbol,
         new_vars: Optional[list[sp.Expr]] = None,
+        aux_poly: Optional[list[tuple[sp.Function, sp.Expr]]] = [],
     ) -> None:
         """
         Parameters
@@ -108,6 +109,7 @@ class PDESys:
         self.first_indep, self.sec_indep = vars_indep
         self.consts = []
         self.diff_quad_order = n_diff
+        self.new_vars = {"nonpoly_vars": aux_poly}
 
         poly_syms, eqs_pol, new_vars_pol, frac_decomps = self.build_ring(
             pde_sys, new_vars
@@ -116,7 +118,7 @@ class PDESys:
         self.frac_decomps = frac_decomps
         self.poly_vars = poly_syms
         self.pde_eq = eqs_pol
-        self.new_vars = new_vars_pol
+        self.new_vars.update(new_vars_pol)
         self.NS_list = []
         dic_t, dic_x, frac_ders = self.get_dics(pde_sys)
 
@@ -336,11 +338,12 @@ class PDESys:
                 else: 
                     for arg in args:
                         new_var = self.get_new_const_vars(arg, new_var)
-                if new_var != None: return new_var      
+                if new_var is not None: return new_var      
         return new_var
         
 
-    def set_new_vars(self, pol_vars: list[PolyElement], frac_vars: Optional[list[sp.Expr]] = None) -> None:
+    def set_new_vars(self, pol_vars: Optional[list[sp.Expr]] = None, frac_vars: Optional[list[sp.Expr]] = None, 
+                     nonpol_vars: Optional[list[sp.Expr]] = None) -> None:
         """Sets with a new value the new_vars attribute
 
         Parameters
@@ -352,9 +355,13 @@ class PDESys:
         -------
         None
         """
-        self.new_vars["new_vars"] = pol_vars
-        if frac_vars != None:
+        if pol_vars is not None: 
+            self.new_vars["new_vars"] = pol_vars
+        if frac_vars is not None:
             self.new_vars["frac_vars"] = frac_vars
+        if nonpol_vars is not None:
+            self.new_vars["nonpoly_vars"] = nonpol_vars
+            
 
     def set_NS_list(self, NS_list: list[tuple[sp.Symbol, PolyElement]]) -> None:
         """Sets with a new value the NS_list attribute
@@ -392,7 +399,7 @@ class PDESys:
         list[PolyElement]
             a list of the fraction variables introduced
         """
-        return self.new_vars["new_vars"], self.new_vars["frac_vars"]
+        return self.new_vars
 
     def get_pde_order(self) -> int:
         """Gets the max derivative order of the system
@@ -492,7 +499,6 @@ class PDESys:
             + new_vars_x
             + self.frac_ders["x_der"]
         )
-        print("new_vars_named", new_vars_named)
         result = is_quadratization(V, deriv_t, self.frac_decomps)
         if not result[0]:
             self.NS_list = result[1]

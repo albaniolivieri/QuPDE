@@ -75,7 +75,7 @@ def shrink_quad(quad_vars: list[PolyElement], poly_syst: PDESys) -> list[PolyEle
         combinations(quad_vars, r) for r in range(1, len(quad_vars))
     )
     for var_group in subsets:
-        poly_syst.set_new_vars(var_group)
+        poly_syst.set_new_vars(pol_vars=var_group)
         res, _ = poly_syst.try_make_quadratic()
         if res:
             return list(var_group)
@@ -113,7 +113,7 @@ def bnb(
     if pruning_rule_order(new_vars, poly_syst):
             return None, math.inf, 1
 
-    poly_syst.set_new_vars(new_vars)
+    poly_syst.set_new_vars(pol_vars=new_vars)
     result_quad = poly_syst.try_make_quadratic()
 
     if result_quad[0]:
@@ -174,7 +174,7 @@ def nearest_neighbor(
             if len(new_vars) >= len(quad_temp):
                 continue
 
-        poly_syst.set_new_vars(new_vars)
+        poly_syst.set_new_vars(pol_vars=new_vars)
         result_quad = poly_syst.try_make_quadratic()
         node_count += 1
 
@@ -190,7 +190,7 @@ def nearest_neighbor(
             while len(NS_queue) > 0:
                 new_vars_ns, NS = NS_queue.popleft()
                 if len(new_vars_ns) + 1 < len(quad_temp):
-                    poly_syst.set_new_vars(new_vars_ns)
+                    poly_syst.set_new_vars(pol_vars=new_vars_ns)
                     poly_syst.set_NS_list(NS)
                     prop_vars = poly_syst.prop_new_vars(sort_fun)
                     for p_vars in prop_vars:
@@ -208,7 +208,7 @@ def nearest_neighbor(
                 NS_queue.append((new_vars, result_quad[1]))
                 if pq.qsize() <= 1:
                     new_vars, NS = NS_queue.popleft()
-                    poly_syst.set_new_vars(new_vars)
+                    poly_syst.set_new_vars(pol_vars=new_vars)
                     poly_syst.set_NS_list(NS)
                     prop_vars = poly_syst.prop_new_vars(sort_fun)
                     for p_vars in prop_vars:
