@@ -68,6 +68,7 @@ def get_non_pol_var(expr, is_rat, func_syms, new_var = None):
         already polynomial
     """
     args = expr.args
+    # print('args', args)
     if expr.func in non_pol_funcs:
         if expr.func == Pow: 
             exp = nsimplify(args[1]) if args[1].is_Float else args[1]
@@ -110,7 +111,7 @@ def get_new_eq(new_var, func_eq, first_indep):
     return wt
 
 def polynomialize_and_quadratize(
-    func_eq, diff_ord: None, 
+    func_eq, diff_ord: Optional[int] = None, 
     first_indep=symbols('t'),
     second_indep=symbols('x'), 
     nvars_bound=10,

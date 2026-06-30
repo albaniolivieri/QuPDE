@@ -1,6 +1,6 @@
 import sympy as sp
 from sympy import Derivative as D
-from qupde.polynomialization import polynomialize 
+from qupde.polynomialization import polynomialize, polynomialize_and_quadratize
 
 t, x = sp.symbols('t x')
 u = sp.Function('u')(t, x)
@@ -12,3 +12,5 @@ v_t = D(u, x, 2) - sp.sin(u)
 
 new_pde, new_vars = (polynomialize([(u, u_t), (v, v_t)]))
 print('New PDE\n', new_pde, '\nNew variables\n', new_vars)
+
+new_quad_pde = polynomialize_and_quadratize([(u, u_t), (v, v_t)], printing="pprint")
