@@ -4,8 +4,6 @@ from sympy import symbols, simplify, expand, nsimplify, Function, exp, sin, cos,
 from sympy import Derivative as D
 
 from qupde.polynomialization import polynomialize 
-from qupde.utils import get_sys_order
-from qupde.quadratization import check_quadratization
 from qupde.pde_sys import PDESys
 
 
@@ -93,6 +91,13 @@ def test_data():
         PDECase([(u, exp(sin(u)))]),
         PDECase([(u, sin(u)**3)]),
         PDECase([(u, exp(omega) * u)], is_polynomial=True),
+        PDECase([(u, exp(2**u))]),
+        PDECase(
+            [
+                (u, -omega * u**0.2 * v**1.3),
+                (v, 2 * (-omega) * u**0.2 * v**1.3),
+            ]
+        ),
     ]
     
     test_cases_rat = [
@@ -105,7 +110,7 @@ def test_data():
             [
                 (u, (1 - u) * omega / (1 + z**omega) - u),
                 (v, (1 - v) * u * (1 + 2 * z**alpha) / (1 + z**alpha) - v),
-                (z, (1 - z) * v - alpha * z),
+                (z, (1 - z) * v - alpha * z**alpha),
             ]
         )
     ]
@@ -148,7 +153,8 @@ def polynomialization_test(test_cases, data, is_rat):
         results = [(eq[0], eq[1].subs(poly_vars)) for eq in poly_syst]
         
         for i in range(len(exprs_orig)):
-            result = results[i][1].evalf()
+            # result = results[i][1].evalf()
+            result = results[i][1]
             assert (
                 simplify(
                     helpers.convert_to_rational(exprs_orig[i][1])

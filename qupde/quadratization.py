@@ -178,7 +178,13 @@ def print_quad(poly_syst: PDESys, p_style: str):
     new_vars_named = [
         (sp.symbols(f"w_{i}"), pol) for i, pol in enumerate(poly_syst.get_aux_vars()["new_vars"])
     ]
+
     print("\nQuadratization:")
+    for name, var in poly_syst.get_aux_vars()["nonpoly_vars"]:
+        if p_style == "latex":
+            print(sp.latex(sp.Eq(name, var.as_expr())))
+        else:
+            sp.pprint(sp.Eq(name, var.as_expr()))
     for name, var in new_vars_named:
         if p_style == "latex":
             print(sp.latex(sp.Eq(name, var.as_expr())))

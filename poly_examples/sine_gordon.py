@@ -10,7 +10,7 @@ v = sp.Function('v')(t, x)
 u_t = v
 v_t = D(u, x, 2) - sp.sin(u)
 
-new_pde, new_vars = (polynomialize([(u, u_t), (v, v_t)]))
-print('New PDE\n', new_pde, '\nNew variables\n', new_vars)
+# new_pde, new_vars = (polynomialize([(u, u_t), (v, v_t)]))
+# print('New PDE\n', new_pde, '\nNew variables\n', new_vars)
 
 new_quad_pde = polynomialize_and_quadratize([(u, u_t), (v, v_t)], printing="pprint")

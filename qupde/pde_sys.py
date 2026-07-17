@@ -90,7 +90,6 @@ class PDESys:
         n_diff: int,
         vars_indep: sp.Symbol,
         new_vars: Optional[list[sp.Expr]] = None,
-        aux_poly: Optional[list[tuple[sp.Function, sp.Expr]]] = [],
     ) -> None:
         """
         Parameters
@@ -109,7 +108,7 @@ class PDESys:
         self.first_indep, self.sec_indep = vars_indep
         self.consts = []
         self.diff_quad_order = n_diff
-        self.new_vars = {"nonpoly_vars": aux_poly}
+        self.new_vars = {"nonpoly_vars": []}
 
         poly_syms, eqs_pol, new_vars_pol, frac_decomps = self.build_ring(
             pde_sys, new_vars
