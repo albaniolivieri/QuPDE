@@ -41,25 +41,29 @@ def polynomialize(func_eq, first_indep=sp.symbols('t'), second_indep=sp.symbols(
             if new_var.func == sp.Pow and new_var.args[1].is_number and not new_var.args[1].is_integer and new_var.args[1] < 1:
                 rat_var = new_var.args[0]**-1
                 neg_power = sp.ceiling(abs(new_var.args[1]))
-                if not any(var[0].equals(rat_var) for var in new_vars):
-                    var_name = sp.Function(f'p_{count}')(first_indep, second_indep)
-                    new_vars.append((rat_var, var_name))
-                    count += 1
-                    poly_func_eq[:] = [(func, rhs.subs(new_vars)) for func, rhs in poly_func_eq]
-                    new_eqs.append((var_name, get_new_eq(rat_var, poly_func_eq, first_indep, frac_var=(rat_var, var_name), orig_var=new_var, neg_power=neg_power).subs(new_vars)))
-                rat_var_tup = next(t for t in new_vars if t[0] == rat_var)
+                dummy = sp.Dummy('inv')
+                if is_rat:
+                    rat_var_tup = (rat_var, dummy)  
+                else:
+                    if not any(var[0].equals(rat_var) for var in new_vars):
+                        var_name = sp.Function(f'p_{count}')(first_indep, second_indep)
+                        new_vars.append((rat_var, var_name))
+                        count += 1
+                        poly_func_eq[:] = [(func, rhs.subs(new_vars)) for func, rhs in poly_func_eq]
+                        new_eqs.append((var_name, get_new_eq(rat_var, poly_func_eq, first_indep, frac_var=(rat_var, var_name), orig_var=new_var, neg_power=neg_power).subs(new_vars)))
+                    rat_var_tup = next(t for t in new_vars if t[0] == rat_var)
                 if new_var.args[1] < 0 and not any(var[0].equals(new_var.args[0]**(new_var.args[1]+neg_power)) for var in new_vars):
                     var_name = sp.Function(f'p_{count}')(first_indep, second_indep)
                     float_var = new_var.args[0]**(new_var.args[1]+neg_power)
                     new_vars.append((float_var, var_name))
                     count += 1
-                    new_eqs.append((var_name, get_new_eq(float_var, poly_func_eq, first_indep, frac_var=rat_var_tup, neg_power=neg_power).subs(new_vars)))
+                    new_eqs.append((var_name, get_new_eq(float_var, poly_func_eq, first_indep, frac_var=rat_var_tup, neg_power=neg_power).subs(new_vars).subs(dummy, rat_var)))
                     poly_func_eq[:] = [(func, rhs.subs(new_vars)) for func, rhs in poly_func_eq]
                 elif new_var.args[1] > 0 and not any(var[0].equals(new_var.args[0]**(new_var.args[1])) for var in new_vars):
                     var_name = sp.Function(f'p_{count}')(first_indep, second_indep)
                     new_vars.append((new_var.args[0]**(new_var.args[1]), var_name))
                     count += 1
-                    new_eqs.append((var_name, get_new_eq(new_var.args[0]**(new_var.args[1]), poly_func_eq, first_indep, frac_var=rat_var_tup, neg_power=neg_power).subs(new_vars)))
+                    new_eqs.append((var_name, get_new_eq(new_var.args[0]**(new_var.args[1]), poly_func_eq, first_indep, frac_var=rat_var_tup, neg_power=neg_power).subs(new_vars).subs(dummy, rat_var)))
                     poly_func_eq[:] = [(func, rhs.subs(new_vars)) for func, rhs in poly_func_eq]
                 else:
                     pass
@@ -183,6 +187,8 @@ def polynomialize_and_quadratize(
     """
     poly_sys, aux_poly = polynomialize(func_eq, first_indep, second_indep, is_rat=True)
     quadratic_sys = quadratize(poly_sys, diff_ord=diff_ord, first_indep=first_indep, nvars_bound=nvars_bound)
+    if quadratic_sys == []:
+        return (poly_sys, aux_poly)
     pde_order = get_sys_order([expr for _, expr in func_eq])
     der_subs = []
     for fun, _ in func_eq:

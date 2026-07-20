@@ -17,8 +17,8 @@ c_2_t = 2 * c_1_t
 c_3_t = -c_1_t
 c_4_t = -c_2_t
 
-new_pde, new_vars = (polynomialize([(c_1, c_1_t), (c_2, c_2_t), (c_3, c_3_t), (c_4, c_4_t)], is_rat=True))
-print('New PDE\n', new_pde, '\nNew variables\n', new_vars)
+# new_pde, new_vars = (polynomialize([(c_1, c_1_t), (c_2, c_2_t), (c_3, c_3_t), (c_4, c_4_t)], is_rat=True))
+# print('New PDE\n', new_pde, '\nNew variables\n', new_vars)
 
-# new_quad_pde = polynomialize_and_quadratize([(c_1, c_1_t), (c_2, c_2_t), (c_3, c_3_t), (c_4, c_4_t)], diff_ord=0, alg_cons=[T])
-# print(new_quad_pde.get_aux_vars())
+new_quad_pde = polynomialize_and_quadratize([(c_1, c_1_t), (c_2, c_2_t), (c_3, c_3_t), (c_4, c_4_t)], diff_ord=0, nvars_bound=6, printing='latex')
+print(new_quad_pde.get_aux_vars())
