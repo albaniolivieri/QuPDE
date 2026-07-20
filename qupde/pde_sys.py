@@ -186,11 +186,11 @@ class PDESys:
         # we substite derivatives symbols and if there is an expr with a rational function,
         # we convert it to the form p/q
         func_eq = [(lhs, sp.cancel(rhs.subs(der_subs))) for lhs, rhs in func_eq]
-        
+
         func_eq, pol_consts = self.polynomialize_consts(func_eq)
         self.pol_consts = [(b, a) for a, b in pol_consts]
         aux_consts = [const[1] for const in pol_consts]
-        
+
         frac_decomp = FractionDecomp(func_eq, poly_vars, constants + aux_consts)
 
         if frac_decomp:
@@ -301,9 +301,23 @@ class PDESys:
             count += der_order + 1
 
         return dic_t, dic_x, frac_ders
-    
-    def polynomialize_consts(self, func_eq):
-    # here: for expr in func_eq look for nonpolynomial and nonrational functions involving elements in constants 
+
+    def polynomialize_consts(
+        self, func_eq: list[tuple[sp.Symbol, sp.Expr]]
+    ) -> tuple[list[tuple[sp.Symbol, sp.Expr]], list[tuple[sp.Expr, sp.Symbol]]]:
+        """Replaces non-polynomial constant expressions with scalar symbols.
+
+        Parameters
+        ----------
+        func_eq
+            List of (lhs symbol, rhs expression) tuples representing the current equations
+
+        Returns
+        -------
+        tuple[list[tuple[sp.Symbol, sp.Expr]], list[tuple[sp.Expr, sp.Symbol]]]
+            the modified equations with non-polynomial constant expressions replaced, and the
+            list of (original expression, cons_i symbol) substitution pairs introduced
+        """
         count = 0
         j = 0
         new_cons_vars = []
@@ -312,37 +326,58 @@ class PDESys:
                 new_var = self.get_new_const_vars(func_eq[j][1])
                 if not new_var:
                     break
-                new_cons_vars.append((new_var, sp.symbols(f'cons_{count}')))
+                new_cons_vars.append((new_var, sp.symbols(f"cons_{count}")))
                 for i in range(len(func_eq)):
-                    func_eq[i] = (func_eq[i][0], func_eq[i][1].subs(new_cons_vars))     
+                    func_eq[i] = (func_eq[i][0], func_eq[i][1].subs(new_cons_vars))
                 count += 1
             j += 1
         return func_eq, new_cons_vars
-        
-        
-    def get_new_const_vars(self, expr, new_var = None):
+
+    def get_new_const_vars(
+        self, expr: sp.Expr, new_var: Optional[sp.Expr] = None
+    ) -> Optional[sp.Expr]:
+        """Recursively searches an expression for the innermost non-polynomial
+        sub-expression involving constants.
+
+        Parameters
+        ----------
+        expr
+            The expression to search
+        new_var : optional
+            The current candidate non-polynomial sub-expression found during recursion
+
+        Returns
+        -------
+        Optional[sp.Expr]
+            The innermost non-polynomial constant sub-expression, or None if the
+            expression is already polynomial in the constants
+        """
         args = expr.args
         non_pol_funcs = [sp.exp, sp.sin, sp.cos, sp.Pow]
         if bool(expr.free_symbols & set(self.consts)):
             if expr.func in non_pol_funcs:
                 if expr.func == sp.Pow:
-                    if type(args[1]) != sp.Symbol:
-                        if args[1] == int(args[1]): 
+                    if not isinstance(args[1], sp.Symbol):
+                        if args[1] == int(args[1]):
                             return self.get_new_const_vars(args[0], new_var)
                 for arg in args:
                     return self.get_new_const_vars(arg, expr)
-            else: 
+            else:
                 if expr.func == sp.Symbol or expr.func == sp.Integer:
                     return new_var
-                else: 
+                else:
                     for arg in args:
                         new_var = self.get_new_const_vars(arg, new_var)
-                if new_var is not None: return new_var      
+                if new_var is not None:
+                    return new_var
         return new_var
-        
 
-    def set_new_vars(self, pol_vars: Optional[list[sp.Expr]] = None, frac_vars: Optional[list[sp.Expr]] = None, 
-                     nonpol_vars: Optional[list[sp.Expr]] = None) -> None:
+    def set_new_vars(
+        self,
+        pol_vars: Optional[list[sp.Expr]] = None,
+        frac_vars: Optional[list[sp.Expr]] = None,
+        nonpol_vars: Optional[list[sp.Expr]] = None,
+    ) -> None:
         """Sets with a new value the new_vars attribute
 
         Parameters
@@ -354,13 +389,12 @@ class PDESys:
         -------
         None
         """
-        if pol_vars is not None: 
+        if pol_vars is not None:
             self.new_vars["new_vars"] = pol_vars
         if frac_vars is not None:
             self.new_vars["frac_vars"] = frac_vars
         if nonpol_vars is not None:
             self.new_vars["nonpoly_vars"] = nonpol_vars
-            
 
     def set_NS_list(self, NS_list: list[tuple[sp.Symbol, PolyElement]]) -> None:
         """Sets with a new value the NS_list attribute

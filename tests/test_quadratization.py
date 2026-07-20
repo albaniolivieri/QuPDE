@@ -214,8 +214,8 @@ def test_data():
         # # u_t = 1/(omega * (u + 1))
         PDECase([(u, 1 / ((2**omega) * (u + omega)))], 1),
         # # u_t = 1/(omega * (u + 1))
-        PDECase([(u, 1 / ((u + 2**omega)))], 1),
-        PDECase([(u, 1 / ((u + sin(omega))))], 1),
+        PDECase([(u, 1 / (u + 2**omega))], 1),
+        PDECase([(u, 1 / (u + sin(omega)))], 1),
         PDECase([(u, u**3 + omega**alpha * alpha**2)], 1),
     ]
     return {

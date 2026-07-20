@@ -1,7 +1,9 @@
 from enum import Enum
 
+
 class StrEnum(str, Enum):
     pass
+
 
 class InputFormat(StrEnum):
     sympy = "sympy"

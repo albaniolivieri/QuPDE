@@ -2,9 +2,9 @@ import sympy as sp
 from sympy import Derivative as D
 from qupde.polynomialization import polynomialize, polynomialize_and_quadratize
 
-t, x = sp.symbols('t x')
-u = sp.Function('u')(t, x)
-v = sp.Function('v')(t, x)
+t, x = sp.symbols("t x")
+u = sp.Function("u")(t, x)
+v = sp.Function("v")(t, x)
 
 
 u_t = v

@@ -82,8 +82,8 @@ def run_quadratization(req: QuadratizationRequest) -> QuadratizationResult:
         poly_syst, traversed = result
 
     quad_vars = poly_syst.get_aux_vars()
-    
-    aux_vars= quad_vars["new_vars"]
+
+    aux_vars = quad_vars["new_vars"]
     frac_vars = quad_vars["frac_vars"]
     quad_sys = poly_syst.get_quad_sys()
 

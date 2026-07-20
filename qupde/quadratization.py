@@ -100,10 +100,18 @@ def quadratize(
     poly_syst.set_new_vars(pol_vars=quad)
     _, quad_syst = poly_syst.try_make_quadratic()
     orig_frac_vars = poly_syst.get_aux_vars()["frac_vars"]
-    frac_vars = [(name, def_var.as_expr().subs(poly_syst.pol_consts)) for name, def_var in orig_frac_vars]
-    poly_syst.set_new_vars(pol_vars=[new_var.as_expr().subs(poly_syst.pol_consts) for new_var in quad], frac_vars=frac_vars)
+    frac_vars = [
+        (name, def_var.as_expr().subs(poly_syst.pol_consts))
+        for name, def_var in orig_frac_vars
+    ]
+    poly_syst.set_new_vars(
+        pol_vars=[new_var.as_expr().subs(poly_syst.pol_consts) for new_var in quad],
+        frac_vars=frac_vars,
+    )
     for i in range(len(quad_syst)):
-        quad_syst[i] = sp.Eq(quad_syst[i].lhs, quad_syst[i].rhs.subs(poly_syst.pol_consts))
+        quad_syst[i] = sp.Eq(
+            quad_syst[i].lhs, quad_syst[i].rhs.subs(poly_syst.pol_consts)
+        )
     poly_syst.set_quad_sys(quad_syst)
 
     if printing:
@@ -150,8 +158,11 @@ def check_quadratization(
 
     poly_syst = PDESys(func_eq, n_diff, (first_indep, x_var), new_vars)
     bool_r, quad_rep = poly_syst.try_make_quadratic()
-    quadratic_sys = [sp.Eq(quad_rep[i].lhs, quad_rep[i].rhs.subs(poly_syst.pol_consts)) for i in range(len(quad_rep))]
-    
+    quadratic_sys = [
+        sp.Eq(quad_rep[i].lhs, quad_rep[i].rhs.subs(poly_syst.pol_consts))
+        for i in range(len(quad_rep))
+    ]
+
     return bool_r, quadratic_sys
 
 
@@ -176,7 +187,8 @@ def print_quad(poly_syst: PDESys, p_style: str):
         raise ValueError(f"Unknown printing style: {p_style}")
     new_pde = poly_syst.get_quad_sys()
     new_vars_named = [
-        (sp.symbols(f"w_{i}"), pol) for i, pol in enumerate(poly_syst.get_aux_vars()["new_vars"])
+        (sp.symbols(f"w_{i}"), pol)
+        for i, pol in enumerate(poly_syst.get_aux_vars()["new_vars"])
     ]
 
     print("\nQuadratization:")
