@@ -1,6 +1,5 @@
 import sympy as sp
-from sympy import Derivative as D
-from qupde.polynomialization import polynomialize, polynomialize_and_quadratize
+from qupde.polynomialization import polynomialize_and_quadratize
 
 t, x = sp.symbols("t x")
 c_1 = sp.Function("c_1")(t, x)

@@ -1,12 +1,12 @@
-from sympy import *
+import sympy as sp
 from sympy import Derivative as D
 from qupde.polynomialization import polynomialize, polynomialize_and_quadratize
 
-t, zetav = symbols("t zeta")
-u = Function("u")(t, zetav)
-v = Function("v")(t, zetav)
-A = symbols("A", constant=True)
-gammac = symbols("gammac", constant=True)
+t, zetav = sp.symbols("t zeta")
+u = sp.Function("u")(t, zetav)
+v = sp.Function("v")(t, zetav)
+A = sp.symbols("A", constant=True)
+gammac = sp.symbols("gammac", constant=True)
 
 u_t = D(v, zetav)
 v_t = -gammac * A * u ** (gammac - 1) * D(u, zetav)

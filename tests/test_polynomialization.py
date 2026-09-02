@@ -1,4 +1,3 @@
-import math
 import pytest
 from sympy import (
     symbols,
@@ -8,15 +7,10 @@ from sympy import (
     Function,
     exp,
     sin,
-    cos,
-    Pow,
-    Symbol,
-    Integer,
 )
 from sympy import Derivative as D
 
 from qupde.polynomialization import polynomialize
-from qupde.pde_sys import PDESys
 
 
 class PDECase:
