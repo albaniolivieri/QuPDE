@@ -284,7 +284,7 @@ def get_new_eq(
             if atom.args[0] == base:
                 beta = sp.nsimplify(atom.args[1])
                 # solves base^(neg_power) * base^(beta) = base^(m*alpha)
-                m = (beta + neg_power) / alpha  
+                m = (beta + neg_power) / alpha
                 if m.is_integer and m >= 0:
                     wt = wt_expr.subs(
                         atom, frac_var[1] ** neg_power * base ** (m * alpha)
@@ -304,7 +304,7 @@ def polynomialize_and_quadratize(
     first_indep=sp.symbols("t"),
     second_indep=sp.symbols("x"),
     nvars_bound=10,
-    printing: Optional[str] = "", #'pprint' or 'latex'
+    printing: Optional[str] = "",  #'pprint' or 'latex'
 ):
     """Combines polynomialization and quadratization into a single step by first
     transforming the system into polynomial form and then finding a quadratization.

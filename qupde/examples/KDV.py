@@ -18,7 +18,7 @@ t, x = sp.symbols("t x")
 u = sp.Function("u")(t, x)
 a = sp.symbols("a", constant=True)
 
-u_t = -D(u, x, 3) -6 * u**2 * D(u, x)
+u_t = -D(u, x, 3) - 6 * u**2 * D(u, x)
 
 # we run QuPDE for the KDV equation
 if __name__ == "__main__":
