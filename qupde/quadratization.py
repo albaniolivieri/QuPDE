@@ -51,6 +51,11 @@ def quadratize(
         raise ValueError(
             "The differential equations list must be a list of tuples of the type (Function, Expression)"
         )
+    for func, _ in func_eq:
+        if not isinstance(func, sp.Function):
+            raise ValueError("The unknown function has to be a Sympy function")
+        if len(func.free_symbols) != 2:
+            raise ValueError("The unknown function has to depend on a temporal and one spatial variable")
 
     unkn_fun = [symbol for symbol, _ in func_eq]
     x_var = [

@@ -304,7 +304,7 @@ def polynomialize_and_quadratize(
     first_indep=sp.symbols("t"),
     second_indep=sp.symbols("x"),
     nvars_bound=10,
-    printing: Optional[str] = "",
+    printing: Optional[str] = "", #'pprint' or 'latex'
 ):
     """Combines polynomialization and quadratization into a single step by first
     transforming the system into polynomial form and then finding a quadratization.
@@ -321,6 +321,9 @@ def polynomialize_and_quadratize(
         The second independent variable of the PDE
     nvars_bound : optional
         The maximum number of variables in the quadratization
+    printing : optional
+        If 'pprint', prints the quadratization in a human-readable format.
+        If 'latex', prints the quadratization in LaTeX format.
 
     Returns
     -------
