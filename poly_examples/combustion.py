@@ -26,4 +26,4 @@ new_quad_pde = polynomialize_and_quadratize(
     nvars_bound=6,
     printing="latex",
 )
-print(new_quad_pde.get_aux_vars())
+# print(new_quad_pde.get_aux_vars())

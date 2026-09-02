@@ -9,8 +9,8 @@ b = sp.symbols("b", constant=True)
 
 u_t = 1 / (1 + sp.exp(-a * u - b))
 
-new_pde, new_vars = polynomialize([(u, u_t)], is_rat=True)
-print("New PDE\n", new_pde, "\nNew variables\n", new_vars)
+# new_pde, new_vars = polynomialize([(u, u_t)], is_rat=True)
+# print("New PDE\n", new_pde, "\nNew variables\n", new_vars)
 
-new_quad_pde = polynomialize_and_quadratize([(u, u_t)], diff_ord=0)
+new_quad_pde = polynomialize_and_quadratize([(u, u_t)], diff_ord=0, printing="latex")
 print(new_quad_pde.get_aux_vars())

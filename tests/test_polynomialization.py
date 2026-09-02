@@ -117,6 +117,8 @@ def test_data():
                 (v, 2 * (-omega) * u**0.2 * v**1.3),
             ]
         ),
+        PDECase([(u, D(u, x) ** 1.3 * u**1.5)]),
+        PDECase([(u, exp(D(u, x)))]),
     ]
 
     test_cases_rat = [
